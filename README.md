@@ -14,11 +14,15 @@ Tested with:
 3. From Vitis, run simple application as debug to initialize PS - and keep it running.
 ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/Screenshotfrom2021-07-1318-04-27.png?raw=true)
 5. From Vivado, program device with .bit-file to initialize FPGA with custom design, while PS clock is routed to PL. (https://forums.xilinx.com/t5/Xilinx-Evaluation-Boards/how-to-use-PS-Clock-for-PL-logic/m-p/783506/highlight/true#M15628)
-6. FPGA can be re-programmed and tested with a working clock as long as Vitis debug keeps PS configured.
+6. FPGA can be re-programmed as usual now, and the PL clock will function as long as Vitis debug keeps PS configured.
 
 
 ### MISC
 
 ### TODO
-1. :yellow_circle:
+1. :green_circle: Configure ultra96 board, simple I/O program
+2. :green_circle: Figure out how to use PS/PL clock without making new platform each time.
+3. :yellow_circle: Find suitable interface on IWR6843AOP board
+5. :yellow_circle: How to send config file from FPGA to IWR6843AOP
+6. :yellow_circle: How to request/receive data from IWR6843AOP
 
