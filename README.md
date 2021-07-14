@@ -39,6 +39,7 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 6. When prompted for a workspace, navigate to ~/ultra96_hw_platform and launch
 7. In Vitis, left click 'ultra96_simple_application_system' in the explorer window and 'Debug as -> Launch hardware'. This initializes PS side. 
 8. In Vivado, Program device with bitstream and all should work as expected.
+9. Modify Vivado project as needed, generate new bitstream, and program device to test added functionality.
 
 
 ### MISC
