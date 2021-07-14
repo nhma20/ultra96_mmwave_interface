@@ -23,20 +23,20 @@ Board files installed by creating new project, and pressing refresh (lower left 
 ```sh
 cd ~/Downloads/ && wget -O ultra96_hw_platform.zip https://nextcloud.sdu.dk/index.php/s/NtNCWbADrXACTwf/download
 ```
-2. Extract .zip to Vivado workspace (can be anywhere)
+2. Extract .zip to Vivado workspace (can be anywhere, here home is chosen)
 ```sh
-cd ~/Downloads/ && sudo unzip ~/Downloads/ultra96_hw_platform.zip -d /tools/Xilinx/Vivado/2021.1/bin/
+cd ~/Downloads/ && sudo unzip ~/Downloads/ultra96_hw_platform.zip -d ~
 ```
 3. Open Vivado
 ```
 cd /tools/Xilinx/Vivado/2021.1/bin/ && sudo ./vivado
 ```
-4. Click 'Open project' and open 'ultra96_hw_platform'
+4. Click 'Open project' and open 'ultra96_hw_platform' from home installation folder
 5. (new terminal) Open Vitis
 ```
-cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
+cd /tools/Xilinx/Vitis/2021.1/bin/ && ./vitis
 ```
-6. When prompted for a workspace, navigate to /tools/Xilinx/Vivado/2021.1/bin/ultra96_hw_platform and launch
+6. When prompted for a workspace, navigate to ~/ultra96_hw_platform and launch
 
 
 ### MISC
