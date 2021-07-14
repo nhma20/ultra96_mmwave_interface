@@ -19,24 +19,26 @@ Board files installed by creating new project, and pressing refresh (lower left 
 
 
 ### Prebuilt hardware platform 
-1. Download .zip folder
+1. Download hardware platform and vivado project .zip folders
 ```sh
-cd ~/Downloads/ && wget -O ultra96_hw_platform.zip https://nextcloud.sdu.dk/index.php/s/NtNCWbADrXACTwf/download
+cd ~/Downloads/ && wget -O ultra96_vivado_proj.zip https://nextcloud.sdu.dk/index.php/s/DiZxBmsK6Q5azkL/download && wget -O ultra96_hw_platform.zip https://nextcloud.sdu.dk/index.php/s/qwARBD2TFrrTEJ2/download
 ```
-2. Extract .zip to Vivado workspace (can be anywhere, here home is chosen)
+2. Extract .zip folders to workspaces (can be anywhere, here home is chosen)
 ```sh
-cd ~/Downloads/ && sudo unzip ~/Downloads/ultra96_hw_platform.zip -d ~
+cd ~/Downloads/ && unzip ~/Downloads/ultra96_hw_platform.zip -d ~ && unzip ~/Downloads/ultra96_vivado_proj.zip -d ~
 ```
 3. Open Vivado
 ```
 cd /tools/Xilinx/Vivado/2021.1/bin/ && sudo ./vivado
 ```
-4. Click 'Open project' and open 'ultra96_hw_platform' from home installation folder
+4. Click 'Open project' and open 'ultra96_vivado_prj' from home installation folder
 5. (new terminal) Open Vitis
 ```
 cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 ```
 6. When prompted for a workspace, navigate to ~/ultra96_hw_platform and launch
+7. In Vitis, left click 'ultra96_simple_application_system' in the explorer window and 'Debug as -> Launch hardware'. This initializes PS side. 
+8. In Vivado, Program device with bitstream and all should work as expected.
 
 
 ### MISC
