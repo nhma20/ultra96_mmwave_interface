@@ -34,7 +34,7 @@ cd /tools/Xilinx/Vivado/2021.1/bin/ && sudo ./vivado
 4. Click 'Open project' and open 'ultra96_hw_platform' from home installation folder
 5. (new terminal) Open Vitis
 ```
-cd /tools/Xilinx/Vitis/2021.1/bin/ && ./vitis
+cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 ```
 6. When prompted for a workspace, navigate to ~/ultra96_hw_platform and launch
 
