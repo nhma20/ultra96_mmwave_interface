@@ -4,7 +4,8 @@ Interfacing with mmWave-device (IWR6843AOP) from Ultra96V2 FPGA
 ### Prerequisites
 Tested with:
 - Ubuntu 20.04.2 LTS (host PC)
-- Vivado / Vitis 2021.1
+- Vivado / Vitis 2021.1 (with cable drivers and board files installed)
+Board files installed by creating new project, and pressing refresh (lower left corner) when looking for boards. Ultra96V2 should appear now. Can close Vivado before finishing creation of new project. 
 
 
 
@@ -15,6 +16,27 @@ Tested with:
 ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/Screenshotfrom2021-07-1318-04-27.png?raw=true)
 5. From Vivado, program device with .bit-file to initialize FPGA with custom design, while PS clock is routed to PL. (https://forums.xilinx.com/t5/Xilinx-Evaluation-Boards/how-to-use-PS-Clock-for-PL-logic/m-p/783506/highlight/true#M15628)
 6. FPGA can be re-programmed as usual now, and the PL clock will function as long as Vitis debug keeps PS configured.
+
+
+### Prebuilt hardware platform 
+1. Download .zip folder
+```sh
+cd ~/Downloads/ && wget -O ultra96_hw_platform.zip https://nextcloud.sdu.dk/index.php/s/NtNCWbADrXACTwf/download
+```
+2. Extract .zip to Vivado workspace (can be anywhere)
+```sh
+cd ~/Downloads/ && sudo unzip ~/Downloads/ultra96_hw_platform.zip -d /tools/Xilinx/Vivado/2021.1/bin/
+```
+3. Open Vivado
+```
+cd /tools/Xilinx/Vivado/2021.1/bin/ && sudo ./vivado
+```
+4. Click 'Open project' and open 'ultra96_hw_platform'
+5. (new terminal) Open Vitis
+```
+cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
+```
+6. When prompted for a workspace, navigate to /tools/Xilinx/Vivado/2021.1/bin/ultra96_hw_platform and launch
 
 
 ### MISC
