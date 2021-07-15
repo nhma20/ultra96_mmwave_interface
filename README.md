@@ -45,11 +45,15 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 ### MISC
 1. The ISK antenna has 15 degree angular resolution compared to the AOP's 30 degree in azimuth. The ISK's antenna also has a larger gain allowing it to see further. Please see the antenna database for more specifications.
 2. UART: The EVMs are configured for 3V3.
+3. HCC: hard coding config of board.
 
 ### TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
 2. :green_circle: Figure out how to use PS/PL clock without making new platform each time.
 3. :yellow_circle: Find suitable interface on IWR6843AOPEVM board
+  - Keep UART data streaming if hard coded config?
 5. :yellow_circle: How to send config file from FPGA to IWR6843AOPEVM
+  - HCC (hard code config) which makes board automatically stream data once turned on?
 6. :yellow_circle: How to request/receive data from IWR6843AOPEVM
+  - Automatically streams data on UART port when HCC'd?
 
