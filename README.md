@@ -43,6 +43,7 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 
 
 ### MISC
+1. The ISK antenna has 15 degree angular resolution compared to the AOP's 30 degree in azimuth. The ISK's antenna also has a larger gain allowing it to see further. Please see the antenna database for more specifications.
 
 ### TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
