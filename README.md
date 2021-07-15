@@ -1,5 +1,5 @@
 # Ultra96V2 FPGA mmWave interface
-Interfacing with mmWave-device (IWR6843AOP) from Ultra96V2 FPGA
+Interfacing with mmWave-device (IWR6843AOPEVM) from Ultra96V2 FPGA
 
 ### Prerequisites
 Tested with:
@@ -47,7 +47,7 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 ### TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
 2. :green_circle: Figure out how to use PS/PL clock without making new platform each time.
-3. :yellow_circle: Find suitable interface on IWR6843AOP board
-5. :yellow_circle: How to send config file from FPGA to IWR6843AOP
-6. :yellow_circle: How to request/receive data from IWR6843AOP
+3. :yellow_circle: Find suitable interface on IWR6843AOPEVM board
+5. :yellow_circle: How to send config file from FPGA to IWR6843AOPEVM
+6. :yellow_circle: How to request/receive data from IWR6843AOPEVM
 
