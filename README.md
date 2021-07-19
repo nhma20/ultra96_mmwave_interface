@@ -8,6 +8,12 @@ Tested with:
 Board files installed by creating new project, and pressing refresh (lower left corner) when looking for boards. Ultra96V2 should appear now. Can close Vivado before finishing creation of new project. 
 
 
+### Flash hard coded config binary to EVM board
+1. Follow https://dev.ti.com/tirex/explore/node?node=ANHlPre7EOLunyygFnRRKg__VLyFKFf__LATEST which is also compatible with AOP version. 
+Download the Industrial Toolbox and find the mentioned binary. Follow https://training.ti.com/hardware-setup-iwr6843aop for flashing instructions. 
+Auto-detecting device did not work, enter manually (like in linked video).
+2. EVM board should now be outputting data on the UART port. 
+
 
 ### Ultra96 FPGA JTAG programming
 1. Follow instructions at https://www.hackster.io/BryanF/ultra96-v2-vivado-2020-2-basic-hardware-platform-6b32b8 to create basic hardware platform.
