@@ -92,18 +92,15 @@ Value: Array of detected points. Each point is represented by 16 bytes giving po
 | Y [m]                                              | float     | 4     |
 | Z [m]                                              | float     | 4     |
 | doppler [m/s]                                      | float     | 4     |
- 
-#### **Side Info for Detected Points**   
-Type: 7  
-Length: 4 Bytes x Num Detected Obj   
-Value: The payload consists of 4 bytes for EACH point in the point cloud. The values for snr and noise are determined as described in the doxygen documentation for the mmWave SDK Demo. 
- 
-| Value                                              | Type      | Bytes |
-|----------------------------------------------------|-----------|-------|
-| snr [dB]                                           | uint16_t  | 2     |
-| noise [dB]  
 
-(all types at link above)
+(all types 1-9 at link above)
+Interpretation strategy: 
+1. Search for magic word in data stream. 
+2. When magic word detected, allocate space for number of detected points mentioned in header.  
+3. Skip rest of header?
+4. Listen for Type 1 (etected points) TLV header+payload packets, skip rest
+5. Store points from Type 1 packets
+6. Repeat
 
 ## Ultra96 FPGA JTAG programming
 1. Follow instructions at https://www.hackster.io/BryanF/ultra96-v2-vivado-2020-2-basic-hardware-platform-6b32b8 to create basic hardware platform.
