@@ -76,7 +76,7 @@ Type Identifier | Value Type                        | Conditions for output
 8          | Azimuth/Elevation Static Heatmap       | `<rangeAzimuth(Elevation)HeatMap>` is set to 1 AND demo is for AOP or ODS which use AOA2D; occurs every frame 
 9          | Temperature Statistics                 | `<statsInfo>` is set to 1; occurs every frame 
 
-----------------------------------------------------------------
+
 
 ### TLV Payload
  
