@@ -57,8 +57,9 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 1. :green_circle: Configure ultra96 board, simple I/O program
 2. :green_circle: Figure out how to use PS/PL clock without making new platform each time.
 3. :green_circle: Find suitable interface on IWR6843AOPEVM board -> hard coded config keeps UART data streaming while board is powered
-5. :yellow_circle: How to send config file from FPGA to IWR6843AOPEVM
-  - HCC (hard code config) which makes board automatically stream data once turned on?
-6. :yellow_circle: How to request/receive data from IWR6843AOPEVM
-  - Automatically streams data on UART port when HCC'd?
+5. :green_circle: How to send config file from FPGA to IWR6843AOPEVM -> HCC (hard code config) which makes board automatically stream data once turned on
+6. :green_circle: How to request/receive data from IWR6843AOPEVM -> Automatically streams data on UART port when HCC'd
+7. :yellow_circle: Interpret UART packages automatically sent from EVM
+8. :yellow_circle: Interface with EVM UART from FPGA
+9. :yellow_circle: Store "points" in BRAM
 
