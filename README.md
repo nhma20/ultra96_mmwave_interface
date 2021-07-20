@@ -64,19 +64,19 @@ The parameters are as follows: `guiMonitor <subFrameIdx> <detected objects> <log
 
 For the Out of Box demo, if type contains the following value then the payload contains the information listed under value type and should be parsed accordingly.
 
-Type Identifier | Value Type                        | Conditions for output
------------|----------------------------------------------------------
-1          | Detected Points                        | `<detected objects>` is set to 1 or 2 AND there are detected objects for the frame, else this type not sent for that frame
-2          | Range Profile                          | `<log magnitude range>` is set to 1; occurs every frame 
-3          | Noise Floor Profile                    | `<noise profile>` is set to 1; occurs every frame 
-4          | Azimuth Static Heatmap                 | `<rangeAzimuth(Elevation)HeatMap>` is set to 1 AND demo is not for AOP or ODS which use AOA2D; occurs every frame
-5          | Range-Doppler Heatmap                  | `<rangeDopplerHeatMap>` is set to 1; occurs every frame 
-6          | Statistics (Performance)               | `<statsInfo>` is set to 1; occurs every frame 
-7          | Side Info for Detected Points          | `<detected objects>` is set to 2 AND there are detected objects for the frame, else this type is not sent for that frame 
-8          | Azimuth/Elevation Static Heatmap       | `<rangeAzimuth(Elevation)HeatMap>` is set to 1 AND demo is for AOP or ODS which use AOA2D; occurs every frame 
-9          | Temperature Statistics                 | `<statsInfo>` is set to 1; occurs every frame 
+| Type Identifier | Value Type                        | Conditions for output
+| -----------|----------------------------------------------------------
+| 1          | Detected Points                        | `<detected objects>` is set to 1 or 2 AND there are detected objects for the frame, else this type not sent for that frame
+| 2          | Range Profile                          | `<log magnitude range>` is set to 1; occurs every frame 
+| 3          | Noise Floor Profile                    | `<noise profile>` is set to 1; occurs every frame 
+| 4          | Azimuth Static Heatmap                 | `<rangeAzimuth(Elevation)HeatMap>` is set to 1 AND demo is not for AOP or ODS which use AOA2D; occurs every frame
+| 5          | Range-Doppler Heatmap                  | `<rangeDopplerHeatMap>` is set to 1; occurs every frame 
+| 6          | Statistics (Performance)               | `<statsInfo>` is set to 1; occurs every frame 
+| 7          | Side Info for Detected Points          | `<detected objects>` is set to 2 AND there are detected objects for the frame, else this type is not sent for that frame 
+| 8          | Azimuth/Elevation Static Heatmap       | `<rangeAzimuth(Elevation)HeatMap>` is set to 1 AND demo is for AOP or ODS which use AOA2D; occurs every frame 
+| 9          | Temperature Statistics                 | `<statsInfo>` is set to 1; occurs every frame 
 
-
+----------------------------------------------------------------
 
 ### TLV Payload
  
