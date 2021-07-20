@@ -14,6 +14,34 @@ Download the Industrial Toolbox and find the mentioned binary. Follow https://tr
 Auto-detecting device did not work, enter manually (like in linked video).
 2. EVM board should now be outputting data on the UART port. 
 
+### Interpret EVM UART data stream
+https://dev.ti.com/tirex/explore/content/mmwave_industrial_toolbox_4_8_0/labs/out_of_box_demo/common/docs/understanding_oob_uart_data.html
+- An output packet is sent out every frame through the UART.
+- Every packet consists of a Frame Header. Additional TLV items may also be sent each frame depending on the options enabled in the guiMonitor commmand and the number of detected objects.
+- Each TLV item consists of a TLV header and value (payload) information.
+- The length of the packet can depend on the number of detected objects and vary from frame to frame.
+- The end of the packet is padded so that the total packet length is always multiple of 32 Bytes.
+
+# Frame Header   
+
+Length: 44 Bytes  
+A Frame Header is sent at the start of each packet. Use the Magic Word to find the start of each packet.
+
+| Value                                              | Type      | Bytes | Details
+|----------------------------------------------------|-----------|-------|------------
+| Magic Word                                         | uint16_t  | 8     | Output buffer magic word (sync word). It is initialized to {0x0102,0x0304,0x0506,0x0708}
+| Version                                            | unint32_t | 4     | SDK Version represented as (MajorNum x 2^24 + MinorNum x 2^16 + BugfixNum x 2^8 + BuildNum)
+| Total Packet Length                                | unint32_t | 4     | Total packet length including frame header length in Bytes
+| Platform                                           | unint32_t | 4     | Device type (ex 0xA6843 for IWR6843 devices)
+| Frame Number                                       | unint32_t | 4     | Frame number (resets to 0 when device is power cycled or reset. Not when sensor stop/start is issued.)
+| Time [in CPU Cycles]                               | unint32_t | 4     | Time in CPU cycles when the message was created.
+| Num Detected Obj                                   | unint32_t | 4     | Number of detected objects (points) for the frame
+| Num TLVs                                           | unint32_t | 4     | Number of TLV items for the frame.
+| Subframe Number                                    | unint32_t | 4     | 0 if advanced subframe mode not enabled, otherwise the sub-frame number in the range 0 to (number of subframes - 1)
+
+----------------------------------------------------------------
+
+
 
 ### Ultra96 FPGA JTAG programming
 1. Follow instructions at https://www.hackster.io/BryanF/ultra96-v2-vivado-2020-2-basic-hardware-platform-6b32b8 to create basic hardware platform.
