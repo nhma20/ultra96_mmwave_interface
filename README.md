@@ -65,12 +65,17 @@ The parameters are as follows: `guiMonitor <subFrameIdx> <detected objects> <log
 For the Out of Box demo, if type contains the following value then the payload contains the information listed under value type and should be parsed accordingly.
 
 
-| Type Identifier  |  Value Type                     | Conditions for output |
-|------------------|---------------------------------|-----------------------|
-| X [m]                                              |                       |
-| Y [m]                                              |                       |
-| Z [m]                                              |                       |
-| doppler [m/s]                                      |                       |
+| Type Identifier  |  Value Type                       | Conditions for output |
+|------------------|-----------------------------------|-----------------------|
+| 1                |  Detected Points                  |                       |
+| 2                |  Range Profile                    |                       |
+| 3                |  Noise Floor Profile              |                       |
+| 4                |  Azimuth Static Heatmap           |                       |
+| 5                |  Range-Doppler Heatmap            |                       |
+| 6                |  Statistics (Performance)         |                       |
+| 7                |  Side Info for Detected Points    |                       |
+| 8                |  Azimuth/Elevation Static Heatmap |                       |
+| 9                |  Temperature Statistics           |                       |
 
 ----------------------------------------------------------------
 
