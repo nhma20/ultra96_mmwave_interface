@@ -65,12 +65,12 @@ The parameters are as follows: `guiMonitor <subFrameIdx> <detected objects> <log
 For the Out of Box demo, if type contains the following value then the payload contains the information listed under value type and should be parsed accordingly.
 
 
-| Value                                              | Type      | Bytes |
-|----------------------------------------------------|-----------|-------|
-| X [m]                                              | float     | 4     |
-| Y [m]                                              | float     | 4     |
-| Z [m]                                              | float     | 4     |
-| doppler [m/s]                                      | float     | 4     |
+| Type Identifier  |  Value Type                     | Conditions for output |
+|------------------|---------------------------------|-----------------------|
+| X [m]                                              |                       |
+| Y [m]                                              |                       |
+| Z [m]                                              |                       |
+| doppler [m/s]                                      |                       |
 
 ----------------------------------------------------------------
 
