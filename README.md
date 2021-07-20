@@ -75,7 +75,6 @@ TYpe Identifier | Value Type                        | Conditions for output
 7          | Side Info for Detected Points          | `<detected objects>` is set to 2 AND there are detected objects for the frame, else this type is not sent for that frame 
 8          | Azimuth/Elevation Static Heatmap       | `<rangeAzimuth(Elevation)HeatMap>` is set to 1 AND demo is for AOP or ODS which use AOA2D; occurs every frame 
 9          | Temperature Statistics                 | `<statsInfo>` is set to 1; occurs every frame 
-
 ----------------------------------------------------------------
 
 ### TLV Payload
