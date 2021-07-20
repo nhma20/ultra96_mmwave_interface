@@ -8,13 +8,13 @@ Tested with:
 Board files installed by creating new project, and pressing refresh (lower left corner) when looking for boards. Ultra96V2 should appear now. Can close Vivado before finishing creation of new project. 
 
 
-### Flash hard coded config binary to EVM board
+## Flash hard coded config binary to EVM board
 1. Follow https://dev.ti.com/tirex/explore/node?node=ANHlPre7EOLunyygFnRRKg__VLyFKFf__LATEST which is also compatible with AOP version. 
 Download the Industrial Toolbox and find the mentioned binary. Follow https://training.ti.com/hardware-setup-iwr6843aop for flashing instructions. 
 Auto-detecting device did not work, enter manually (like in linked video).
 2. EVM board should now be outputting data on the UART port. 
 
-### Interpret EVM UART data stream
+## Interpret EVM UART data stream
 https://dev.ti.com/tirex/explore/content/mmwave_industrial_toolbox_4_8_0/labs/out_of_box_demo/common/docs/understanding_oob_uart_data.html
 - An output packet is sent out every frame through the UART.
 - Every packet consists of a Frame Header. Additional TLV items may also be sent each frame depending on the options enabled in the guiMonitor commmand and the number of detected objects.
@@ -22,7 +22,7 @@ https://dev.ti.com/tirex/explore/content/mmwave_industrial_toolbox_4_8_0/labs/ou
 - The length of the packet can depend on the number of detected objects and vary from frame to frame.
 - The end of the packet is padded so that the total packet length is always multiple of 32 Bytes.
 
-# Frame Header   
+### Frame Header   
 
 Length: 44 Bytes  
 A Frame Header is sent at the start of each packet. Use the Magic Word to find the start of each packet.
@@ -42,8 +42,69 @@ A Frame Header is sent at the start of each packet. Use the Magic Word to find t
 ----------------------------------------------------------------
 
 
+### TLV Header   
+Length: 8 Bytes  
+* The number of TLVs in the frame packet is extracted from the Frame Header.  
+* For each TLV in the packet, there is a TLV Header containing Type and Length information. 
+  * The Type identifier indicates what kind of information is contained in the playload.  
+  * The Length value gives the length of the payload. 
 
-### Ultra96 FPGA JTAG programming
+| Value                                              | Type      | Bytes | Details
+|----------------------------------------------------|-----------|-------|-----------
+| Type                                               | unint32_t | 4     | Indicates types of message contained in payload. 
+| Length                                             | unint32_t | 4     | Length of the payload in Bytes (does not include length of the TLV header)  
+
+----------------------------------------------------------------
+
+### TLV Type Identifier  
+
+The parameters in the CLI command **guiMonitor** are used to enable or disable whether the TLV type is included in the output frame packet.
+The parameters are as follows: `guiMonitor <subFrameIdx> <detected objects> <log magnitude range> <noise profile> <rangeAzimuth(Elevation)HeatMap> <rangeDopplerHeatMap> <statsInfo>`  
+
+
+For the Out of Box demo, if type contains the following value then the payload contains the information listed under value type and should be parsed accordingly.
+
+TYpe Identifier | Value Type                        | Conditions for output
+-----------|----------------------------------------------------------
+1          | Detected Points                        | `<detected objects>` is set to 1 or 2 AND there are detected objects for the frame, else this type is not sent for that frame
+2          | Range Profile                          | `<log magnitude range>` is set to 1; occurs every frame 
+3          | Noise Floor Profile                    | `<noise profile>` is set to 1; occurs every frame 
+4          | Azimuth Static Heatmap                 | `<rangeAzimuth(Elevation)HeatMap>` is set to 1 AND demo is not for AOP or ODS which use AOA2D; occurs every frame
+5          | Range-Doppler Heatmap                  | `<rangeDopplerHeatMap>` is set to 1; occurs every frame 
+6          | Statistics (Performance)               | `<statsInfo>` is set to 1; occurs every frame 
+7          | Side Info for Detected Points          | `<detected objects>` is set to 2 AND there are detected objects for the frame, else this type is not sent for that frame 
+8          | Azimuth/Elevation Static Heatmap       | `<rangeAzimuth(Elevation)HeatMap>` is set to 1 AND demo is for AOP or ODS which use AOA2D; occurs every frame 
+9          | Temperature Statistics                 | `<statsInfo>` is set to 1; occurs every frame 
+
+----------------------------------------------------------------
+
+### TLV Payload
+ 
+#### **Detected Points**       
+Type: 1                                
+Length: 16 Bytes x Num Detected Obj  
+Value: Array of detected points. Each point is represented by 16 bytes giving position and radial Doppler velocity as shown in the table below:
+ 
+| Value                                              | Type      | Bytes |
+|----------------------------------------------------|-----------|-------|
+| X [m]                                              | float     | 4     |
+| Y [m]                                              | float     | 4     |
+| Z [m]                                              | float     | 4     |
+| doppler [m/s]                                      | float     | 4     |
+ 
+#### **Side Info for Detected Points**   
+Type: 7  
+Length: 4 Bytes x Num Detected Obj   
+Value: The payload consists of 4 bytes for EACH point in the point cloud. The values for snr and noise are determined as described in the doxygen documentation for the mmWave SDK Demo. 
+ 
+| Value                                              | Type      | Bytes |
+|----------------------------------------------------|-----------|-------|
+| snr [dB]                                           | uint16_t  | 2     |
+| noise [dB]  
+
+(all types at link above)
+
+## Ultra96 FPGA JTAG programming
 1. Follow instructions at https://www.hackster.io/BryanF/ultra96-v2-vivado-2020-2-basic-hardware-platform-6b32b8 to create basic hardware platform.
 2. Then follow https://www.hackster.io/BryanF/ultra96-v2-vitis-2020-2-hello-world-from-arm-a53-2d952a to use hardware platform to create simple program to configure PS (needed to get clock to PL).
 3. From Vitis, run simple application as debug to initialize PS - and keep it running.
@@ -52,7 +113,7 @@ A Frame Header is sent at the start of each packet. Use the Magic Word to find t
 6. FPGA can be re-programmed as usual now, and the PL clock will function as long as Vitis debug keeps PS configured.
 
 
-### Prebuilt hardware platform 
+## Prebuilt hardware platform 
 1. Download hardware platform and vivado project .zip folders
 ```sh
 cd ~/Downloads/ && wget -O ultra96_vivado_proj.zip https://nextcloud.sdu.dk/index.php/s/DiZxBmsK6Q5azkL/download && wget -O ultra96_hw_platform.zip https://nextcloud.sdu.dk/index.php/s/qwARBD2TFrrTEJ2/download
@@ -76,12 +137,12 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 9. Modify Vivado project as needed, generate new bitstream, and program device to test added functionality.
 
 
-### MISC
+## MISC
 1. The ISK antenna has 15 degree angular resolution compared to the AOP's 30 degree in azimuth. The ISK's antenna also has a larger gain allowing it to see further. Please see the antenna database for more specifications.
 2. UART: The EVMs are configured for 3V3.
 3. HCC: hard coding config of board.
 
-### TODO
+## TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
 2. :green_circle: Figure out how to use PS/PL clock without making new platform each time.
 3. :green_circle: Find suitable interface on IWR6843AOPEVM board -> hard coded config keeps UART data streaming while board is powered
