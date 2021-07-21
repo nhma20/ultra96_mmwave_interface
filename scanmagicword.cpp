@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+// from https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/947021/iwr6843aop-confusion-regarding-people-counting-and-6843-aop-evm
 
 #define BAUDRATE B921600
 #define MODEMDEVICE "/dev/ttyUSB1"
