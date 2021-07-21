@@ -138,7 +138,10 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 ## MISC
 1. The ISK antenna has 15 degree angular resolution compared to the AOP's 30 degree in azimuth. The ISK's antenna also has a larger gain allowing it to see further. Please see the antenna database for more specifications.
 2. UART: The EVMs are configured for 3V3.
-3. HCC: hard coding config of board.
+3. Baud rates:
+DATA: 912600
+CLI: 115200
+4. HCC: hard coding config of board.
 
 ## TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
