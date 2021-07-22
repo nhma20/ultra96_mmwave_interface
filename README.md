@@ -142,6 +142,7 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 DATA: 912600
 CLI: 115200
 4. HCC: hard coding config of board.
+5. Magic word scanner always only finds magic word after minicom has displayed data stream and been closed? Sort of synchronization?
 
 ## TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
