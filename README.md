@@ -146,6 +146,7 @@ CLI: 115200
 6. Editting hardcoded config:
  
 ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/hcc_cfg_edit.png?raw=true)
+ 
 7. Several configs to choose from by default (2d, 3d, advanced, calibration) in mss/hc_confic_<name>.h. Default is 3d as set in hc_config_defs.h, 
 
 ## TODO
