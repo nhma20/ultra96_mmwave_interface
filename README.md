@@ -144,7 +144,9 @@ CLI: 115200
 4. HCC: hard coding config of board.
 5. Magic word scanner always only finds magic word after minicom has displayed data stream and been closed? Sort of synchronization?
 6. Editting hardcoded config:
+ 
 ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/hcc_cfg_edit.png?raw=true)
+7. Several configs to choose from by default (2d, 3d, advanced, calibration) in mss/hc_confic_<name>.h. Default is 3d as set in hc_config_defs.h, 
 
 ## TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
