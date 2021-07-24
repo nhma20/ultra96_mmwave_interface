@@ -156,6 +156,7 @@ CLI: 115200
 5. :green_circle: How to send config file from FPGA to IWR6843AOPEVM -> HCC (hard code config) which makes board automatically stream data once turned on
 6. :green_circle: How to request/receive data from IWR6843AOPEVM -> Automatically streams data on UART port when HCC'd
 7. :yellow_circle: Interpret UART packages automatically sent from EVM
-8. :yellow_circle: Interface with EVM UART from FPGA
-9. :yellow_circle: Store "points" in BRAM
+8. :yellow_circle: How to interpret USB outpout on FPGA? Turn into TTL with FTDI? Route to UART_BT JTAG pins? Other options?
+9. :yellow_circle: Interface with EVM UART from FPGA
+10. :yellow_circle: Store "points" in BRAM
 
