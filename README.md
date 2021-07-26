@@ -165,3 +165,4 @@ CLI: 115200
 9. :yellow_circle: Interface with EVM UART from FPGA
 10. :yellow_circle: Store "points" in BRAM
 
+:yellow_circle: Impossible to reroute UART/SPI (https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/1021061/iwr6843aopevm-pins-for-spi-or-uart-not-usb-or-60-pin) Switch to IWR1443BOOST instead?
