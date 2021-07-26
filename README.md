@@ -166,3 +166,8 @@ CLI: 115200
 10. :yellow_circle: Store "points" in BRAM
 
 :yellow_circle: Impossible to reroute UART/SPI (https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/1021061/iwr6843aopevm-pins-for-spi-or-uart-not-usb-or-60-pin) Switch to IWR1443BOOST instead?
+ - Modified "14xx - mmWave SDK Demo" to include HCC (https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/846384/awr1843boost-hardcoding-config-onto-the-device and https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/708175/ccs-iwr1443-there-are-some-question-in-mmwdemo_clisensorstop-1-initcfg_stop-why/2616079#2616079).
+ - Need 2 SOP jumpers to flash IWR1443BOOST
+ - Check if UART anywhere on board without CLI
+
+
