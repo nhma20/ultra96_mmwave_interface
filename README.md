@@ -152,8 +152,10 @@ CLI: 115200
 9. EVM switches:
 
 ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/Screenshotfrom2021-07-2419-29-04.png?raw=true)
- 
 
+10. PINCNTL last two digits is equal to pin address number in .c/.h files (divide/multiply 4)
+11. PINCNTL addresses for pins G3 (SCL) and G1 (SDA) on IWR6843AOP are the same as G14 (SCL) and F13 (SDA) on the IWR6843. Can maybe use same pinmux_xwr68xx.h even though mislabeled.
+ 
 ## TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
 2. :green_circle: Figure out how to use PS/PL clock without making new platform each time.
@@ -172,4 +174,11 @@ CLI: 115200
  - Pinmux to re-route UART to other pins. UART_config chose between sic-a/b 
 (https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/1022319/iwr1443boost-read-uart-from-somewhere-else-other-than-usb-or-60-pin)
 
+ 
+ 
+ IWR6843AOPEVM I2C:
+ - mss_main.c changes:
+ -- included I2C.h
+ -- added I2C PINMUX under platformInit
+ --
 
