@@ -1,4 +1,4 @@
-0201040306050807(magic word) 04000503(version) E0050000(packet length) 43680A00(platform) BA060000(frame number) 41B62305(time) 11000000(num objects (17)) 06000000(num TLVs) 00000000(subframe number) 
+0201040306050807(magic word) 04000503(version) E0050000(packet length (000005E0 = 1504)) 43680A00(platform) BA060000(frame number) 41B62305(time) 11000000(num objects (17)) 06000000(num TLVs) 00000000(subframe number) 
 01000000(TLV type (1, point)) 10010000(length (272)) 
 9E0610BE(x) 1597523E(y) CD62B73D(z) 00000000(doppler) 
 D308C03CBF963F3F03DC39BD00000000
