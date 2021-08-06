@@ -26,10 +26,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity data_parser is
     Port ( i_RX_Byte    : in std_logic_vector(7 downto 0);
@@ -46,7 +42,7 @@ architecture Behavioral of data_parser is
     type    STATE_TYPE      is  (s_rst, s_magic_word, 
     s_frame_hdr, s_tlv_hdr, s_tlv_points, s_tlv_other, s_error);    --  add states here
     signal  current_state   :   STATE_TYPE  :=  s_rst;
-    signal  next_state      :   STATE_TYPE  :=  s_rst;
+    --signal  next_state      :   STATE_TYPE  :=  s_rst;
     
     signal found_magic_s       :   std_logic := '0';
     signal magic_word_buff  :   std_logic_vector(63 downto 0);
@@ -67,19 +63,35 @@ architecture Behavioral of data_parser is
     signal dp_arr           :   std_logic_vector(31 downto 0);
     signal r_data_rdy       :   std_logic := '0';
     signal r_error          :   std_logic := '0';
+    signal ena_shift_reg    :   std_logic_vector(1 downto 0) := "00";
 
 begin
+
     ------------------------------------------------------------------------------
-    current_state_logic :   process(i_Clk, rst)
+    next_state_logic    :   process(current_state, i_Ena, i_Clk, ena_shift_reg)  -- Add input signals to sensitivity list
     ------------------------------------------------------------------------------
-    -- Current state logic process. Here goes state transitions and state 
-    -- transition assignments. Clock and reset sensitive.
+    -- Next state logic process. Here goes state transition conditions. 
+    -- Sensitive to state change and input signals.
     ------------------------------------------------------------------------------
+    variable magic_word_buff_var    :   std_logic_vector(63 downto 0) := (others => '0');
+    constant magic_word : std_logic_vector(63 downto 0) := "0000001000000001000001000000001100000110000001010000100000000111";
+    variable hdr_cnt    : integer range 0 to 32 := 0;
+    variable tlv_hdr_cnt: integer range 0 to 32 := 0;
+    variable skip_cnt   : std_logic_vector(31 downto 0);
+    variable x_cnt      : integer range 0 to 32 := 0;
+    variable y_cnt      : integer range 0 to 32 := 0;
+    variable z_cnt      : integer range 0 to 32 := 0;
+    variable dp_cnt     : integer range 0 to 32 := 0;
+    variable rxd_points : std_logic_vector(31 downto 0);
+    constant std_vec_one: std_logic_vector(31 downto 0) := "00000000000000000000000000000001";
+    constant ena_rising : std_logic_vector(1 downto 0) := "01";
+    
     begin
-    ------------------------------------------------------------------------------
+    
+    if (rising_edge(i_Clk)) then
+    
         if (i_Rst = '1') then
-            current_state   <=  s_rst;              -- Reset state
-            -- Put additional reset assignments here
+            current_state   <=  s_rst;          -- Reset state
             magic_word_buff <= (others => '0');
             --hdr_cnt <= 0;
             packet_size <= (others => '0');
@@ -98,84 +110,48 @@ begin
             dp_arr <= (others => '0');
             r_data_rdy <= '0';
             r_error <= '0';
-
-        elsif (rising_edge(i_Clk)) then
-            current_state   <=  next_state;         -- State transition (only valid from process exit)
-            case current_state is                   -- State transition assignments
-                when s_rst =>                       -- Remember all possibilities
-                    case next_state is              -- Use others and null for default
-                        when s_rst =>
-                            null;
-                        when s_magic_word =>
-                            null;  
-                        when s_frame_hdr =>
-                            null;  
-                        when s_tlv_hdr =>
-                            null;  
-                        when s_tlv_points =>
-                            null;
-                        when s_tlv_other =>
-                            null;                            
-                        when others =>
-                            null;
-                    end case;
-                when others =>
-                    null;
-            end case;
-
         end if;
-    ------------------------------------------------------------------------------
-    end process current_state_logic;
-    ------------------------------------------------------------------------------
-
-    ------------------------------------------------------------------------------
-    next_state_logic    :   process(current_state, i_Ena )  -- Add input signals to sensitivity list
-    ------------------------------------------------------------------------------
-    -- Next state logic process. Here goes state transition conditions. 
-    -- Sensitive to state change and input signals.
-    ------------------------------------------------------------------------------
-    variable magic_word_buff_var    :   std_logic_vector(63 downto 0) := (others => '0');
-    constant magic_word : std_logic_vector(63 downto 0) := "0000001000000001000001000000001100000110000001010000100000000111";
-    variable hdr_cnt    : integer range 0 to 32 := 0;
-    variable tlv_hdr_cnt: integer range 0 to 32 := 0;
-    variable skip_cnt   : std_logic_vector(31 downto 0);
-    variable x_cnt      : integer range 0 to 32 := 0;
-    variable y_cnt      : integer range 0 to 32 := 0;
-    variable z_cnt      : integer range 0 to 32 := 0;
-    variable dp_cnt     : integer range 0 to 32 := 0;
-    variable rxd_points : std_logic_vector(31 downto 0);
-
     
-    begin
     ------------------------------------------------------------------------------
         case current_state is
-        
     -----------------------------------------RESET--------------------------------          
             when s_rst =>
-                if i_Ena'EVENT and i_Ena = '1' then
+                --if rising_edge(i_Ena) then
+                --if i_Ena'EVENT and i_Ena = '1' then
+                if ena_shift_reg = ena_rising then
                     magic_word_buff_var(15 downto 8) := i_RX_Byte; -- lowest byte + leftshift
-                    next_state <= s_magic_word;
+                    magic_word_buff(15 downto 8) <= i_RX_Byte; -- lowest byte + leftshift
+                    --magic_word_buff <= magic_word_buff_var; -- testing
+                    current_state <= s_magic_word;
                 else 
-                    next_state  <=  s_rst;
+                    current_state  <=  s_rst;
                 end if;
 
     ---------------------------------------MAGIC WORD-----------------------------                
             when s_magic_word =>
-                if i_Ena'EVENT and i_Ena = '1' then
+                --if rising_edge(i_Ena) then
+                --if i_Ena'EVENT and i_Ena = '1' then
+                if ena_shift_reg = ena_rising then
                     magic_word_buff_var(7 downto 0) := i_RX_Byte;
-                    if magic_word_buff_var = magic_word then -- magic word found
+                    magic_word_buff(7 downto 0) <= i_RX_Byte; -- testing
+                    --if magic_word_buff_var = magic_word then -- magic word found
+                    if magic_word_buff = magic_word then -- testing
                         found_magic_s <= '1';
-                        next_state <= s_frame_hdr;
+                        current_state <= s_frame_hdr;
                     else -- left shift 1 byte
-                        magic_word_buff_var := magic_word_buff_var(63 downto 7) & "00000000"; 
+                        magic_word_buff_var := magic_word_buff_var(63 downto 8) & "00000000"; 
+                        magic_word_buff <= magic_word_buff(63 downto 8) & "00000000"; -- testing
                     end if;
                 else
-                    next_state <= s_magic_word;
+                    current_state <= s_magic_word;
                 end if;
+                magic_word_buff <= magic_word_buff_var; -- testing
                 
     --------------------------------------FRAME HEADER----------------------------                  
             when s_frame_hdr =>
-                if i_Ena'EVENT and i_Ena = '1' then
+                --if rising_edge(i_Ena) then
+                --if i_Ena'EVENT and i_Ena = '1' then
+                if ena_shift_reg = ena_rising then
                     if hdr_cnt < 4 then
                         hdr_cnt := hdr_cnt + 1;
                     elsif hdr_cnt < 8 then
@@ -191,17 +167,19 @@ begin
                     elsif hdr_cnt = 32 then
                         tlv_hdr_cnt := 1;
                         tlv_hdr(7 downto 0) <= i_RX_Byte;
-                        next_state <= s_tlv_hdr;                       
+                        current_state <= s_tlv_hdr;                       
                     else 
-                        next_state <= s_error;                       
+                        current_state <= s_error;                       
                     end if;
                 else
-                    next_state  <=  s_frame_hdr;
+                    current_state  <=  s_frame_hdr;
                 end if;
  
     ----------------------------------------TLV HEADER----------------------------                 
             when s_tlv_hdr =>
-                if i_Ena'EVENT and i_Ena = '1' then
+                --if rising_edge(i_Ena) then
+                --if i_Ena'EVENT and i_Ena = '1' then
+                if ena_shift_reg = ena_rising then
                     if tlv_hdr_cnt < 8 then
                         tlv_hdr(7+hdr_cnt*8 downto hdr_cnt*8) <= i_RX_Byte;
                     elsif tlv_hdr_cnt = 8 then
@@ -211,18 +189,20 @@ begin
                         else
                             skip_length <= tlv_hdr(31 downto 0);
                             skip_cnt := "00000000000000000000000000000001";--std_logic_vector(unsigned(skip_cnt) + unsigned('1'));
-                            next_state <= s_tlv_other;
+                            current_state <= s_tlv_other;
                         end if;                       
                     else 
-                        next_state <= s_error;
+                        current_state <= s_error;
                     end if;
                 else
-                    next_state  <=  s_tlv_hdr;
+                    current_state  <=  s_tlv_hdr;
                 end if;
                 
     ----------------------------------------TLV POINTS----------------------------  
             when s_tlv_points =>
-                if i_Ena'EVENT and i_Ena = '1' then
+                --if rising_edge(i_Ena) then
+                --if i_Ena'EVENT and i_Ena = '1' then
+                if ena_shift_reg = ena_rising then
                     if x_cnt < 4 then
                         x_arr(7+x_cnt*8 downto x_cnt*8) <= i_RX_Byte;
                         x_cnt := x_cnt + 1;
@@ -237,7 +217,7 @@ begin
                         dp_cnt := dp_cnt  + 1;
                     elsif dp_cnt = 4 then 
                         if dp_cnt = 4 then
-                            rxd_points := std_logic_vector(unsigned(rxd_points) + unsigned('1'));
+                            rxd_points := std_logic_vector(unsigned(rxd_points) + unsigned(std_vec_one));
                             if rxd_points < num_points then
                                 x_arr(7 downto 0) <= i_RX_Byte;
                                 x_cnt := 1;
@@ -247,32 +227,34 @@ begin
                             elsif rxd_points = num_points then
                                 r_data_rdy <= '0';
                                 magic_word_buff_var(15 downto 8) := i_RX_Byte; -- lowest byte + leftshift
-                                next_state <= s_magic_word;
+                                current_state <= s_magic_word;
                             else 
-                                next_state <= s_error;
+                                current_state <= s_error;
                             end if;
                         else 
-                            next_state <= s_error;
+                            current_state <= s_error;
                         end if;
                     end if;
                 else
-                    next_state  <=  s_tlv_points;
+                    current_state  <=  s_tlv_points;
                 end if;
  
     ----------------------------------------TLV OTHER-----------------------------                
             when s_tlv_other =>
-                if i_Ena'EVENT and i_Ena = '1' then
+                --if rising_edge(i_Ena) then
+                --if i_Ena'EVENT and i_Ena = '1' then
+                if ena_shift_reg = ena_rising then
                     if skip_cnt < skip_length then
-                        skip_cnt := std_logic_vector(unsigned(skip_cnt) + unsigned('1'));
+                        skip_cnt := std_logic_vector(unsigned(skip_cnt) + unsigned(std_vec_one));
                     elsif skip_cnt = skip_length then
                         tlv_hdr(7 downto 0) <= i_RX_Byte;
                         tlv_hdr_cnt := 1;
-                        next_state <= s_tlv_hdr;
+                        current_state <= s_tlv_hdr;
                     else 
-                        next_state <= s_error;
+                        current_state <= s_error;
                     end if;
                 else
-                    next_state  <=  s_tlv_other;
+                    current_state  <=  s_tlv_other;
                 end if;
                 
             when s_error =>    
@@ -281,39 +263,30 @@ begin
             when others =>
                 null;
         end case;
+    
+    end if;
+        
     ------------------------------------------------------------------------------
     end process next_state_logic;
     ------------------------------------------------------------------------------
 
+    
     ------------------------------------------------------------------------------
-    output_logic        :   process(current_state)
+    ena_shift_reg_process :   process(i_Ena, i_Clk)  
     ------------------------------------------------------------------------------
-    -- Output logic process. Here goes output assignments. 
-    -- Sensitive to state change only.
+    -- Holds the edge state of i_Ena.
     ------------------------------------------------------------------------------
-    begin
+    begin  
     ------------------------------------------------------------------------------
-        case current_state is                       -- Remember all states
-            when s_rst =>                           
-                null;                               -- Remember to assign all signals
-            when s_magic_word =>                           
-                null;  
-            when s_frame_hdr =>                           
-                null;  
-            when s_tlv_hdr =>                           
-                null;  
-            when s_tlv_points =>                           
-                null;  
-            when s_tlv_other =>                           
-                null;  
-            when s_error =>                           
-                null;  
-            when others =>
-                null;
-        end case;
+        if rising_edge(i_Clk) then
+            ena_shift_reg <= ena_shift_reg(0) & i_Ena;
+        end if;
     ------------------------------------------------------------------------------
-    end process output_logic;
+    end process ena_shift_reg_process;
     ------------------------------------------------------------------------------
+            
+    
+    
     
 o_Error <= '1' when current_state = s_error else '0';
 --o_Error <= r_error;
