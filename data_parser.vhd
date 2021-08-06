@@ -45,25 +45,27 @@ architecture Behavioral of data_parser is
     --signal  next_state      :   STATE_TYPE  :=  s_rst;
     
     signal found_magic_s       :   std_logic := '0';
-    signal magic_word_buff  :   std_logic_vector(63 downto 0);
+    signal magic_word_buff  :   std_logic_vector(63 downto 0) := (others => '0');
     --signal hdr_cnt          :   integer range 0 to 32;
-    signal packet_size      :   std_logic_vector(31 downto 0);
-    signal num_points       :   std_logic_vector(31 downto 0);
+    signal packet_size      :   std_logic_vector(31 downto 0) := (others => '0');
+    signal num_points       :   std_logic_vector(31 downto 0) := (others => '0');
     --signal rxd_points       :   std_logic_vector(31 downto 0);
-    signal tlv_hdr          :   std_logic_vector(63 downto 0);
-    signal skip_length      :   std_logic_vector(31 downto 0);
+    signal tlv_hdr          :   std_logic_vector(63 downto 0) := (others => '0');
+    signal skip_length      :   integer := 0; --std_logic_vector(31 downto 0);
     --signal skip_cnt         :   std_logic_vector(31 downto 0);
     --signal x_cnt            :   std_logic_vector(31 downto 0);
-    signal x_arr            :   std_logic_vector(31 downto 0);
+    signal x_arr            :   std_logic_vector(31 downto 0) := (others => '0');
     --signal y_cnt            :   std_logic_vector(31 downto 0);
-    signal y_arr            :   std_logic_vector(31 downto 0);
+    signal y_arr            :   std_logic_vector(31 downto 0) := (others => '0');
     --signal z_cnt            :   std_logic_vector(31 downto 0);
-    signal z_arr            :   std_logic_vector(31 downto 0);
+    signal z_arr            :   std_logic_vector(31 downto 0) := (others => '0');
     --signal dp_cnt           :   std_logic_vector(31 downto 0);
-    signal dp_arr           :   std_logic_vector(31 downto 0);
+    signal dp_arr           :   std_logic_vector(31 downto 0) := (others => '0');
     signal r_data_rdy       :   std_logic := '0';
     signal r_error          :   std_logic := '0';
     signal ena_shift_reg    :   std_logic_vector(1 downto 0) := "00";
+    signal tlv_hdr_cnt_s    :   integer := 0;
+    signal rxd_points_s     :   integer := 0;
 
 begin
 
@@ -73,16 +75,17 @@ begin
     -- Next state logic process. Here goes state transition conditions. 
     -- Sensitive to state change and input signals.
     ------------------------------------------------------------------------------
-    variable magic_word_buff_var    :   std_logic_vector(63 downto 0) := (others => '0');
+    variable magic_word_buff_var:   std_logic_vector(63 downto 0) := (others => '0');
     constant magic_word : std_logic_vector(63 downto 0) := "0000001000000001000001000000001100000110000001010000100000000111";
     variable hdr_cnt    : integer range 0 to 32 := 0;
     variable tlv_hdr_cnt: integer range 0 to 32 := 0;
-    variable skip_cnt   : std_logic_vector(31 downto 0);
+    variable skip_cnt   : integer := 0; --std_logic_vector(31 downto 0);
     variable x_cnt      : integer range 0 to 32 := 0;
     variable y_cnt      : integer range 0 to 32 := 0;
     variable z_cnt      : integer range 0 to 32 := 0;
     variable dp_cnt     : integer range 0 to 32 := 0;
-    variable rxd_points : std_logic_vector(31 downto 0);
+    variable rxd_points : integer := 0; --std_logic_vector(31 downto 0);
+    constant int_one    : integer := 1; 
     constant std_vec_one: std_logic_vector(31 downto 0) := "00000000000000000000000000000001";
     constant ena_rising : std_logic_vector(1 downto 0) := "01";
     
@@ -98,7 +101,7 @@ begin
             num_points <= (others => '0');
             --rxd_points <= (others => '0');
             tlv_hdr <= (others => '0');
-            skip_length <= (others => '0');
+            skip_length <= 0;--(others => '0');
             --skip_cnt <= (others => '0');
             --x_cnt <= (others => '0');
             x_arr <= (others => '0');
@@ -120,8 +123,7 @@ begin
                 --if i_Ena'EVENT and i_Ena = '1' then
                 if ena_shift_reg = ena_rising then
                     magic_word_buff_var(15 downto 8) := i_RX_Byte; -- lowest byte + leftshift
-                    magic_word_buff(15 downto 8) <= i_RX_Byte; -- lowest byte + leftshift
-                    --magic_word_buff <= magic_word_buff_var; -- testing
+                    magic_word_buff(15 downto 8) <= i_RX_Byte; -- lowest byte + leftshiftg
                     current_state <= s_magic_word;
                 else 
                     current_state  <=  s_rst;
@@ -132,20 +134,21 @@ begin
                 --if rising_edge(i_Ena) then
                 --if i_Ena'EVENT and i_Ena = '1' then
                 if ena_shift_reg = ena_rising then
+                    --magic_word_buff_var := magic_word; -- i_RX_Byte; -- testing
                     magic_word_buff_var(7 downto 0) := i_RX_Byte;
-                    magic_word_buff(7 downto 0) <= i_RX_Byte; -- testing
                     --if magic_word_buff_var = magic_word then -- magic word found
-                    if magic_word_buff = magic_word then -- testing
-                        found_magic_s <= '1';
+                    if magic_word_buff_var = magic_word then -- testing
+                        --found_magic_s <= '1';
+                        hdr_cnt := 0;
                         current_state <= s_frame_hdr;
                     else -- left shift 1 byte
-                        magic_word_buff_var := magic_word_buff_var(63 downto 8) & "00000000"; 
-                        magic_word_buff <= magic_word_buff(63 downto 8) & "00000000"; -- testing
+                        magic_word_buff_var := magic_word_buff_var(55 downto 0) & "00000000";
+                        found_magic_s <= not found_magic_s;
                     end if;
+                    magic_word_buff <= magic_word_buff_var;
                 else
                     current_state <= s_magic_word;
                 end if;
-                magic_word_buff <= magic_word_buff_var; -- testing
                 
     --------------------------------------FRAME HEADER----------------------------                  
             when s_frame_hdr =>
@@ -181,19 +184,25 @@ begin
                 --if i_Ena'EVENT and i_Ena = '1' then
                 if ena_shift_reg = ena_rising then
                     if tlv_hdr_cnt < 8 then
-                        tlv_hdr(7+hdr_cnt*8 downto hdr_cnt*8) <= i_RX_Byte;
+                        tlv_hdr(7+tlv_hdr_cnt*8 downto tlv_hdr_cnt*8) <= i_RX_Byte;
+                        tlv_hdr_cnt := tlv_hdr_cnt + 1;
                     elsif tlv_hdr_cnt = 8 then
-                        if tlv_hdr(63 downto 32) = "0000001000000000000000000000000" then -- 0x01000000
+                        if tlv_hdr(63 downto 32) = "00000001000000000000000000000000" then -- 0x01000000
                             x_arr(7 downto 0) <= i_RX_Byte;
                             x_cnt := 1;
+                            y_cnt := 0;
+                            z_cnt := 0;
+                            dp_cnt := 0;
+                            current_state <= s_tlv_points;
                         else
-                            skip_length <= tlv_hdr(31 downto 0);
-                            skip_cnt := "00000000000000000000000000000001";--std_logic_vector(unsigned(skip_cnt) + unsigned('1'));
+                            skip_length <= to_integer(unsigned(tlv_hdr(31 downto 0)));
+                            skip_cnt := 0; 
                             current_state <= s_tlv_other;
                         end if;                       
                     else 
                         current_state <= s_error;
                     end if;
+                    tlv_hdr_cnt_s <= tlv_hdr_cnt;
                 else
                     current_state  <=  s_tlv_hdr;
                 end if;
@@ -203,7 +212,9 @@ begin
                 --if rising_edge(i_Ena) then
                 --if i_Ena'EVENT and i_Ena = '1' then
                 if ena_shift_reg = ena_rising then
-                    if x_cnt < 4 then
+                    if to_integer(unsigned(num_points)) = 0 then
+                        current_state <= s_magic_word;
+                    elsif x_cnt < 4 then
                         x_arr(7+x_cnt*8 downto x_cnt*8) <= i_RX_Byte;
                         x_cnt := x_cnt + 1;
                     elsif x_cnt = 4 and y_cnt <4 then
@@ -217,14 +228,14 @@ begin
                         dp_cnt := dp_cnt  + 1;
                     elsif dp_cnt = 4 then 
                         if dp_cnt = 4 then
-                            rxd_points := std_logic_vector(unsigned(rxd_points) + unsigned(std_vec_one));
-                            if rxd_points < num_points then
+                            rxd_points := rxd_points + int_one;
+                            if rxd_points < to_integer(unsigned(num_points)) then
                                 x_arr(7 downto 0) <= i_RX_Byte;
                                 x_cnt := 1;
                                 y_cnt := 0;
                                 z_cnt := 0;
                                 dp_cnt := 0;
-                            elsif rxd_points = num_points then
+                            elsif rxd_points = to_integer(unsigned(num_points)) then
                                 r_data_rdy <= '0';
                                 magic_word_buff_var(15 downto 8) := i_RX_Byte; -- lowest byte + leftshift
                                 current_state <= s_magic_word;
@@ -235,6 +246,7 @@ begin
                             current_state <= s_error;
                         end if;
                     end if;
+                    rxd_points_s <= rxd_points;
                 else
                     current_state  <=  s_tlv_points;
                 end if;
@@ -245,7 +257,7 @@ begin
                 --if i_Ena'EVENT and i_Ena = '1' then
                 if ena_shift_reg = ena_rising then
                     if skip_cnt < skip_length then
-                        skip_cnt := std_logic_vector(unsigned(skip_cnt) + unsigned(std_vec_one));
+                        skip_cnt := skip_cnt  + 1;
                     elsif skip_cnt = skip_length then
                         tlv_hdr(7 downto 0) <= i_RX_Byte;
                         tlv_hdr_cnt := 1;
