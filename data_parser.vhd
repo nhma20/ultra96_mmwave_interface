@@ -33,7 +33,8 @@ entity data_parser is
            i_Ena        : in STD_LOGIC;
            i_Rst        : in std_logic ;
            o_Error      : out std_logic;
-           o_Found_Magic : out STD_LOGIC;
+           o_Found_Magic: out STD_LOGIC;
+           o_Data_rdy   : out STD_LOGIC;
            o_Write_BRAM : out STD_LOGIC_VECTOR (3 downto 0)       
     );
 end data_parser;
@@ -93,7 +94,7 @@ begin
     
     if (rising_edge(i_Clk)) then
     
-        if (i_Rst = '1') then
+        if (i_Rst = '0') then -- @@@@@@@@@ 1
             current_state   <=  s_rst;          -- Reset state
             magic_word_buff <= (others => '0');
             --hdr_cnt <= 0;
@@ -113,14 +114,14 @@ begin
             dp_arr <= (others => '0');
             r_data_rdy <= '0';
             r_error <= '0';
+            found_magic_s <= '0';
+            --r_error <= not r_error; --'1'; @@@@@@@@
         end if;
     
     ------------------------------------------------------------------------------
         case current_state is
     -----------------------------------------RESET--------------------------------          
             when s_rst =>
-                --if rising_edge(i_Ena) then
-                --if i_Ena'EVENT and i_Ena = '1' then
                 if ena_shift_reg = ena_rising then
                     magic_word_buff_var(15 downto 8) := i_RX_Byte; -- lowest byte + leftshift
                     magic_word_buff(15 downto 8) <= i_RX_Byte; -- lowest byte + leftshiftg
@@ -133,17 +134,15 @@ begin
             when s_magic_word =>
                 --if rising_edge(i_Ena) then
                 --if i_Ena'EVENT and i_Ena = '1' then
+                r_data_rdy <= '0';
                 if ena_shift_reg = ena_rising then
-                    --magic_word_buff_var := magic_word; -- i_RX_Byte; -- testing
                     magic_word_buff_var(7 downto 0) := i_RX_Byte;
-                    --if magic_word_buff_var = magic_word then -- magic word found
                     if magic_word_buff_var = magic_word then -- testing
-                        --found_magic_s <= '1';
+                        found_magic_s <= '1';
                         hdr_cnt := 0;
                         current_state <= s_frame_hdr;
                     else -- left shift 1 byte
                         magic_word_buff_var := magic_word_buff_var(55 downto 0) & "00000000";
-                        found_magic_s <= not found_magic_s;
                     end if;
                     magic_word_buff <= magic_word_buff_var;
                 else
@@ -152,8 +151,7 @@ begin
                 
     --------------------------------------FRAME HEADER----------------------------                  
             when s_frame_hdr =>
-                --if rising_edge(i_Ena) then
-                --if i_Ena'EVENT and i_Ena = '1' then
+                found_magic_s <= '0'; -- re-enable @@@@@@@
                 if ena_shift_reg = ena_rising then
                     if hdr_cnt < 4 then
                         hdr_cnt := hdr_cnt + 1;
@@ -180,14 +178,12 @@ begin
  
     ----------------------------------------TLV HEADER----------------------------                 
             when s_tlv_hdr =>
-                --if rising_edge(i_Ena) then
-                --if i_Ena'EVENT and i_Ena = '1' then
                 if ena_shift_reg = ena_rising then
                     if tlv_hdr_cnt < 8 then
                         tlv_hdr(7+tlv_hdr_cnt*8 downto tlv_hdr_cnt*8) <= i_RX_Byte;
                         tlv_hdr_cnt := tlv_hdr_cnt + 1;
                     elsif tlv_hdr_cnt = 8 then
-                        if tlv_hdr(63 downto 32) = "00000001000000000000000000000000" then -- 0x01000000
+                        if tlv_hdr(31 downto 0) = "00000001000000000000000000000000" then -- 0x01000000
                             x_arr(7 downto 0) <= i_RX_Byte;
                             x_cnt := 1;
                             y_cnt := 0;
@@ -195,8 +191,8 @@ begin
                             dp_cnt := 0;
                             current_state <= s_tlv_points;
                         else
-                            skip_length <= to_integer(unsigned(tlv_hdr(31 downto 0)));
-                            skip_cnt := 0; 
+                            skip_length <= to_integer(unsigned(tlv_hdr(63 downto 32)));
+                            skip_cnt := 1; 
                             current_state <= s_tlv_other;
                         end if;                       
                     else 
@@ -209,8 +205,6 @@ begin
                 
     ----------------------------------------TLV POINTS----------------------------  
             when s_tlv_points =>
-                --if rising_edge(i_Ena) then
-                --if i_Ena'EVENT and i_Ena = '1' then
                 if ena_shift_reg = ena_rising then
                     if to_integer(unsigned(num_points)) = 0 then
                         current_state <= s_magic_word;
@@ -236,7 +230,7 @@ begin
                                 z_cnt := 0;
                                 dp_cnt := 0;
                             elsif rxd_points = to_integer(unsigned(num_points)) then
-                                r_data_rdy <= '0';
+                                r_data_rdy <= '1';
                                 magic_word_buff_var(15 downto 8) := i_RX_Byte; -- lowest byte + leftshift
                                 current_state <= s_magic_word;
                             else 
@@ -253,8 +247,6 @@ begin
  
     ----------------------------------------TLV OTHER-----------------------------                
             when s_tlv_other =>
-                --if rising_edge(i_Ena) then
-                --if i_Ena'EVENT and i_Ena = '1' then
                 if ena_shift_reg = ena_rising then
                     if skip_cnt < skip_length then
                         skip_cnt := skip_cnt  + 1;
@@ -270,7 +262,7 @@ begin
                 end if;
                 
             when s_error =>    
-                r_error <= '1';
+                r_error <= not r_error; --'1';
                 
             when others =>
                 null;
@@ -298,9 +290,9 @@ begin
     ------------------------------------------------------------------------------
             
     
-    
-    
-o_Error <= '1' when current_state = s_error else '0';
---o_Error <= r_error;
+o_Found_Magic <= found_magic_s;
+o_Data_rdy <= r_data_rdy;
+--o_Error <= '1' when current_state = s_error else '0';
+o_Error <= r_error;
 
 end Behavioral;
