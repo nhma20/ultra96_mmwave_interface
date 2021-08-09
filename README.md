@@ -157,7 +157,7 @@ CLI: 115200
 11. PINCNTL addresses for pins G3 (SCL) and G1 (SDA) on IWR6843AOP are the same as G14 (SCL) and F13 (SDA) on the IWR6843. Can maybe use same pinmux_xwr68xx.h even though mislabeled.
 12. Ultra96 40 pin LS header:
  
-![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/U96_40_pinout.png?raw=true)
+![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/U96_40_pinout.png?raw=true) ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/U96_60_pinout.png?raw=true)
  
 ## TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
