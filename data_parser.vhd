@@ -35,7 +35,7 @@ entity data_parser is
            o_Error      : out std_logic;
            o_Found_Magic: out STD_LOGIC;
            o_Data_rdy   : out STD_LOGIC;
-           o_Write_BRAM : out STD_LOGIC_VECTOR (3 downto 0)       
+           o_Debug      : out std_logic_vector(7 downto 0) := (others => '0')  
     );
 end data_parser;
 
@@ -43,30 +43,19 @@ architecture Behavioral of data_parser is
     type    STATE_TYPE      is  (s_rst, s_magic_word, 
     s_frame_hdr, s_tlv_hdr, s_tlv_points, s_tlv_other, s_error);    --  add states here
     signal  current_state   :   STATE_TYPE  :=  s_rst;
-    --signal  next_state      :   STATE_TYPE  :=  s_rst;
-    
-    signal found_magic_s       :   std_logic := '0';
+    signal found_magic_s    :   std_logic := '0';
     signal magic_word_buff  :   std_logic_vector(63 downto 0) := (others => '0');
-    --signal hdr_cnt          :   integer range 0 to 32;
     signal packet_size      :   std_logic_vector(31 downto 0) := (others => '0');
     signal num_points       :   std_logic_vector(31 downto 0) := (others => '0');
-    --signal rxd_points       :   std_logic_vector(31 downto 0);
     signal tlv_hdr          :   std_logic_vector(63 downto 0) := (others => '0');
-    signal skip_length      :   integer := 0; --std_logic_vector(31 downto 0);
-    --signal skip_cnt         :   std_logic_vector(31 downto 0);
-    --signal x_cnt            :   std_logic_vector(31 downto 0);
+    signal skip_length      :   integer := 0;
     signal x_arr            :   std_logic_vector(31 downto 0) := (others => '0');
-    --signal y_cnt            :   std_logic_vector(31 downto 0);
     signal y_arr            :   std_logic_vector(31 downto 0) := (others => '0');
-    --signal z_cnt            :   std_logic_vector(31 downto 0);
     signal z_arr            :   std_logic_vector(31 downto 0) := (others => '0');
-    --signal dp_cnt           :   std_logic_vector(31 downto 0);
     signal dp_arr           :   std_logic_vector(31 downto 0) := (others => '0');
     signal r_data_rdy       :   std_logic := '0';
     signal r_error          :   std_logic := '0';
     signal ena_shift_reg    :   std_logic_vector(1 downto 0) := "00";
-    signal tlv_hdr_cnt_s    :   integer := 0;
-    signal rxd_points_s     :   integer := 0;
 
 begin
 
@@ -80,44 +69,18 @@ begin
     constant magic_word : std_logic_vector(63 downto 0) := "0000001000000001000001000000001100000110000001010000100000000111";
     variable hdr_cnt    : integer range 0 to 32 := 0;
     variable tlv_hdr_cnt: integer range 0 to 32 := 0;
-    variable skip_cnt   : integer := 0; --std_logic_vector(31 downto 0);
+    variable skip_cnt   : integer := 0; 
     variable x_cnt      : integer range 0 to 32 := 0;
     variable y_cnt      : integer range 0 to 32 := 0;
     variable z_cnt      : integer range 0 to 32 := 0;
     variable dp_cnt     : integer range 0 to 32 := 0;
-    variable rxd_points : integer := 0; --std_logic_vector(31 downto 0);
-    constant int_one    : integer := 1; 
-    constant std_vec_one: std_logic_vector(31 downto 0) := "00000000000000000000000000000001";
+    variable rxd_points : integer := 0; 
     constant ena_rising : std_logic_vector(1 downto 0) := "01";
     
     begin
     
     if (rising_edge(i_Clk)) then
-    
-        if (i_Rst = '0') then -- @@@@@@@@@ 1
-            current_state   <=  s_rst;          -- Reset state
-            magic_word_buff <= (others => '0');
-            --hdr_cnt <= 0;
-            packet_size <= (others => '0');
-            num_points <= (others => '0');
-            --rxd_points <= (others => '0');
-            tlv_hdr <= (others => '0');
-            skip_length <= 0;--(others => '0');
-            --skip_cnt <= (others => '0');
-            --x_cnt <= (others => '0');
-            x_arr <= (others => '0');
-            --y_cnt <= (others => '0');
-            y_arr <= (others => '0');
-            --z_cnt <= (others => '0');
-            z_arr <= (others => '0');
-            --dp_cnt <= (others => '0');
-            dp_arr <= (others => '0');
-            r_data_rdy <= '0';
-            r_error <= '0';
-            found_magic_s <= '0';
-            --r_error <= not r_error; --'1'; @@@@@@@@
-        end if;
-    
+     
     ------------------------------------------------------------------------------
         case current_state is
     -----------------------------------------RESET--------------------------------          
@@ -132,13 +95,12 @@ begin
 
     ---------------------------------------MAGIC WORD-----------------------------                
             when s_magic_word =>
-                --if rising_edge(i_Ena) then
-                --if i_Ena'EVENT and i_Ena = '1' then
                 r_data_rdy <= '0';
                 if ena_shift_reg = ena_rising then
                     magic_word_buff_var(7 downto 0) := i_RX_Byte;
                     if magic_word_buff_var = magic_word then -- testing
-                        found_magic_s <= '1';
+                        found_magic_s <= not  found_magic_s; --'1';
+                        --found_magic_s <= '1';
                         hdr_cnt := 0;
                         current_state <= s_frame_hdr;
                     else -- left shift 1 byte
@@ -151,8 +113,9 @@ begin
                 
     --------------------------------------FRAME HEADER----------------------------                  
             when s_frame_hdr =>
-                found_magic_s <= '0'; -- re-enable @@@@@@@
+                --found_magic_s <= '0'; -- re-enable @@@@@@@
                 if ena_shift_reg = ena_rising then
+                    --r_error <= not r_error; --@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                     if hdr_cnt < 4 then
                         hdr_cnt := hdr_cnt + 1;
                     elsif hdr_cnt < 8 then
@@ -179,11 +142,12 @@ begin
     ----------------------------------------TLV HEADER----------------------------                 
             when s_tlv_hdr =>
                 if ena_shift_reg = ena_rising then
+                    --r_error <= not r_error; --@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                     if tlv_hdr_cnt < 8 then
                         tlv_hdr(7+tlv_hdr_cnt*8 downto tlv_hdr_cnt*8) <= i_RX_Byte;
                         tlv_hdr_cnt := tlv_hdr_cnt + 1;
                     elsif tlv_hdr_cnt = 8 then
-                        if tlv_hdr(31 downto 0) = "00000001000000000000000000000000" then -- 0x01000000
+                        if tlv_hdr(31 downto 0) = "00000000000000000000000000000001" then -- 0x00000001
                             x_arr(7 downto 0) <= i_RX_Byte;
                             x_cnt := 1;
                             y_cnt := 0;
@@ -198,7 +162,6 @@ begin
                     else 
                         current_state <= s_error;
                     end if;
-                    tlv_hdr_cnt_s <= tlv_hdr_cnt;
                 else
                     current_state  <=  s_tlv_hdr;
                 end if;
@@ -206,6 +169,7 @@ begin
     ----------------------------------------TLV POINTS----------------------------  
             when s_tlv_points =>
                 if ena_shift_reg = ena_rising then
+                    --r_error <= not r_error; --@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                     if to_integer(unsigned(num_points)) = 0 then
                         current_state <= s_magic_word;
                     elsif x_cnt < 4 then
@@ -221,26 +185,24 @@ begin
                         dp_arr(7+dp_cnt*8 downto dp_cnt*8) <= i_RX_Byte;
                         dp_cnt := dp_cnt  + 1;
                     elsif dp_cnt = 4 then 
-                        if dp_cnt = 4 then
-                            rxd_points := rxd_points + int_one;
-                            if rxd_points < to_integer(unsigned(num_points)) then
-                                x_arr(7 downto 0) <= i_RX_Byte;
-                                x_cnt := 1;
-                                y_cnt := 0;
-                                z_cnt := 0;
-                                dp_cnt := 0;
-                            elsif rxd_points = to_integer(unsigned(num_points)) then
-                                r_data_rdy <= '1';
-                                magic_word_buff_var(15 downto 8) := i_RX_Byte; -- lowest byte + leftshift
-                                current_state <= s_magic_word;
-                            else 
-                                current_state <= s_error;
-                            end if;
-                        else 
+                        rxd_points := rxd_points + 1;
+                        if rxd_points < to_integer(unsigned(num_points)) then
+                            x_arr(7 downto 0) <= i_RX_Byte;
+                            x_cnt := 1;
+                            y_cnt := 0;
+                            z_cnt := 0;
+                            dp_cnt := 0;
+                        elsif rxd_points = to_integer(unsigned(num_points)) then
+                            r_data_rdy <= '1';
+                            rxd_points := 0;
+                            magic_word_buff_var(15 downto 8) := i_RX_Byte; -- lowest byte + leftshift
+                            current_state <= s_magic_word;
+                        elsif rxd_points > to_integer(unsigned(num_points)) then
                             current_state <= s_error;
                         end if;
+                    else
+                        current_state <= s_error;
                     end if;
-                    rxd_points_s <= rxd_points;
                 else
                     current_state  <=  s_tlv_points;
                 end if;
@@ -248,6 +210,7 @@ begin
     ----------------------------------------TLV OTHER-----------------------------                
             when s_tlv_other =>
                 if ena_shift_reg = ena_rising then
+                    --r_error <= not r_error; --@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                     if skip_cnt < skip_length then
                         skip_cnt := skip_cnt  + 1;
                     elsif skip_cnt = skip_length then
@@ -262,11 +225,38 @@ begin
                 end if;
                 
             when s_error =>    
-                r_error <= not r_error; --'1';
+                --r_error <= '1'; -- testing, re-enable
                 
             when others =>
-                null;
+                --r_error <= not r_error; -- testing, re-enable
         end case;
+    
+        
+    
+        if (i_Rst = '1') then -- @@@@@@@@@ 1
+            current_state   <=  s_rst;          -- Reset state
+            magic_word_buff <= (others => '0');
+            --hdr_cnt <= 0;
+            packet_size <= (others => '0');
+            num_points <= (others => '0');
+            --rxd_points <= (others => '0');
+            tlv_hdr <= (others => '0');
+            skip_length <= 0;--(others => '0');
+            --skip_cnt <= (others => '0');
+            --x_cnt <= (others => '0');
+            x_arr <= (others => '0');
+            --y_cnt <= (others => '0');
+            y_arr <= (others => '0');
+            --z_cnt <= (others => '0');
+            z_arr <= (others => '0');
+            --dp_cnt <= (others => '0');
+            dp_arr <= (others => '0');
+            r_data_rdy <= '0';
+            found_magic_s <= '0';
+            r_error <= '0';
+        else 
+            null;
+        end if;
     
     end if;
         
@@ -289,10 +279,18 @@ begin
     end process ena_shift_reg_process;
     ------------------------------------------------------------------------------
             
-    
+o_Debug(0) <= '1' when current_state = s_rst else '0';  
+o_Debug(1) <= '1' when current_state = s_magic_word else '0';  
+o_Debug(2) <= '1' when current_state = s_frame_hdr else '0';  
+o_Debug(3) <= '1' when current_state = s_tlv_hdr else '0';  
+o_Debug(4) <= '1' when current_state = s_tlv_points  else '0'; 
+o_Debug(5) <= '1' when current_state = s_tlv_other   else '0'; 
+o_Debug(6) <= '1' when current_state = s_error else '0'; 
+o_Debug(7) <= '1';
+--o_Debug <= num_points(31 downto 24);
+
 o_Found_Magic <= found_magic_s;
 o_Data_rdy <= r_data_rdy;
---o_Error <= '1' when current_state = s_error else '0';
 o_Error <= r_error;
 
 end Behavioral;
