@@ -165,7 +165,7 @@ begin
     begin  
     ------------------------------------------------------------------------------
         if rising_edge(i_Clk) then
-            ena_shift_reg <= ena_shift_reg(0) & i_new_set;
+            new_set_shift_reg <= new_set_shift_reg(0) & i_new_set;
         end if;
     ------------------------------------------------------------------------------
     end process new_set_shift_reg_process;
