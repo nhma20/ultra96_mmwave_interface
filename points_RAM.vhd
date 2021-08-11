@@ -94,7 +94,7 @@ begin
                     s_data_rdy <= '1';
                     num_points_out <= points_stored; 
                     points_stored := 0; -- @@@@@@@@@@ does this 'ruin' previous assignment?
-                    ram_selector <= '1';
+                    ram_selector <= '0';
                     current_state <= s_ram_1;
                 elsif ena_shift_reg = ena_rising then
                     if points_stored < size-1 then
@@ -111,7 +111,7 @@ begin
                     s_data_rdy <= '1';
                     num_points_out <= points_stored; 
                     points_stored := 0; -- @@@@@@@@@@ does this 'ruin' previous assignment?
-                    ram_selector <= '0';
+                    ram_selector <= '1';
                     current_state <= s_ram_0;
                 elsif ena_shift_reg = ena_rising then
                     if points_stored < size-1 then
