@@ -105,9 +105,11 @@ begin
 
     ---------------------------------------MAGIC WORD-----------------------------                
             when s_magic_word =>
-                r_data_rdy <= '0';
-                all_points_sent <= '0';
+--                r_data_rdy <= '0';
+--                all_points_sent <= '0';
                 if ena_shift_reg = ena_rising then
+                    r_data_rdy <= '0';--------------------------
+                    all_points_sent <= '0';----------------------
                     magic_word_buff_var(7 downto 0) := i_RX_Byte;
                     if magic_word_buff_var = magic_word then
                         found_magic_s <= '1';
@@ -185,12 +187,14 @@ begin
                 
     ----------------------------------------TLV POINTS----------------------------  
             when s_tlv_points =>
-                r_data_rdy <= '0'; -- move into ena_shift_reg check?
+                --r_data_rdy <= '0'; -- move into ena_shift_reg check?
                 --if r_data_rdy = '1' then
                 --    r_data_rdy <= '0';
                 --end if;
                 if ena_shift_reg = ena_rising then
-                    r_data_rdy <= '0'; -- @@@@@@@@@@@@@@@@@@@@@@ testing
+                    if r_data_rdy = '1' then
+                        r_data_rdy <= '0';
+                    end if;
                     if to_integer(unsigned(num_points)) = 0 then
                         current_state <= s_magic_word;
                     elsif x_cnt < 4 then
