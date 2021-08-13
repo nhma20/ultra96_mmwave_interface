@@ -8,8 +8,14 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
--- Description: 
--- 
+-- Description: Parses mmWave data from received UART packets
+-- https://dev.ti.com/tirex/explore/content/mmwave_industrial_toolbox_4_8_0/labs/out_of_box_demo/common/docs/understanding_oob_uart_data.html
+--
+-- In: Bytes from UART get parsed to find points in data.
+--
+-- Out: Once a point is found, data_rdy is high and data is on o_data_out. 
+-- Once all points have been sent to RAM, issue new-set-of-points flag.
+--
 -- Dependencies: 
 -- 
 -- Revision:
@@ -32,9 +38,11 @@ entity data_parser is
            i_Clk        : in STD_LOGIC;
            i_Ena        : in STD_LOGIC;
            i_Rst        : in std_logic ;
-           o_Error      : out std_logic;
-           o_Found_Magic: out STD_LOGIC;
+           --o_Error      : out std_logic;
+           --o_Found_Magic: out STD_LOGIC;
+           o_set_done   : out STD_LOGIC;
            o_Data_rdy   : out STD_LOGIC;
+           o_data_out   : out std_logic_vector(127 downto 0) := (others => '0');
            o_Debug      : out std_logic_vector(7 downto 0) := (others => '0')  
     );
 end data_parser;
@@ -56,6 +64,7 @@ architecture Behavioral of data_parser is
     signal r_data_rdy       :   std_logic := '0';
     signal r_error          :   std_logic := '0';
     signal ena_shift_reg    :   std_logic_vector(1 downto 0) := "00";
+    signal all_points_sent  :   std_logic := '0';
 
 begin
 
@@ -97,6 +106,7 @@ begin
     ---------------------------------------MAGIC WORD-----------------------------                
             when s_magic_word =>
                 r_data_rdy <= '0';
+                all_points_sent <= '0';
                 if ena_shift_reg = ena_rising then
                     magic_word_buff_var(7 downto 0) := i_RX_Byte;
                     if magic_word_buff_var = magic_word then
@@ -175,7 +185,12 @@ begin
                 
     ----------------------------------------TLV POINTS----------------------------  
             when s_tlv_points =>
+                r_data_rdy <= '0'; -- move into ena_shift_reg check?
+                --if r_data_rdy = '1' then
+                --    r_data_rdy <= '0';
+                --end if;
                 if ena_shift_reg = ena_rising then
+                    r_data_rdy <= '0'; -- @@@@@@@@@@@@@@@@@@@@@@ testing
                     if to_integer(unsigned(num_points)) = 0 then
                         current_state <= s_magic_word;
                     elsif x_cnt < 4 then
@@ -190,21 +205,21 @@ begin
                     elsif z_cnt = 4 and dp_cnt < 4 then
                         dp_arr(7+dp_cnt*8 downto dp_cnt*8) <= i_RX_Byte;
                         dp_cnt := dp_cnt  + 1;
-                    elsif dp_cnt = 4 then 
-                        rxd_points := rxd_points + 1;
-                        if rxd_points < to_integer(unsigned(num_points)) then
-                            x_arr(7 downto 0) <= i_RX_Byte;
-                            x_cnt := 1;
-                            y_cnt := 0;
-                            z_cnt := 0;
-                            dp_cnt := 0;
-                        elsif rxd_points = to_integer(unsigned(num_points)) then
+                        if dp_cnt = 4 then 
+                            rxd_points := rxd_points + 1;
                             r_data_rdy <= '1';
-                            rxd_points := 0;
-                            magic_word_buff_var(15 downto 8) := i_RX_Byte; -- lowest byte + leftshift
-                            current_state <= s_magic_word;
-                        elsif rxd_points > to_integer(unsigned(num_points)) then
-                            current_state <= s_error;
+                            if rxd_points < to_integer(unsigned(num_points)) then
+                                x_cnt := 0;
+                                y_cnt := 0;
+                                z_cnt := 0;
+                                dp_cnt := 0;
+                            elsif rxd_points = to_integer(unsigned(num_points)) then
+                                rxd_points := 0;
+                                all_points_sent <= '1';
+                                current_state <= s_magic_word;
+                            elsif rxd_points > to_integer(unsigned(num_points)) then
+                                current_state <= s_error;
+                            end if;
                         end if;
                     else
                         current_state <= s_error;
@@ -286,6 +301,10 @@ begin
     end process ena_shift_reg_process;
     ------------------------------------------------------------------------------
             
+            
+----------------------------------------------------------------------------------            
+-- Output port assignments
+----------------------------------------------------------------------------------            
 o_Debug(0) <= '1' when current_state = s_rst else '0';  
 o_Debug(1) <= '1' when current_state = s_magic_word else '0';  
 o_Debug(2) <= '1' when current_state = s_frame_hdr else '0';  
@@ -296,8 +315,14 @@ o_Debug(6) <= '1' when current_state = s_error else '0';
 o_Debug(7) <= '1';
 --o_Debug <= num_points(31 downto 24);
 
-o_Found_Magic <= found_magic_s;
+--o_Found_Magic <= found_magic_s;
+
+o_set_done <= all_points_sent;
+
+o_data_out <= x_arr & y_arr & z_arr & dp_arr;
 o_Data_rdy <= r_data_rdy;
-o_Error <= r_error;
+
+--o_Error <= r_error;
+----------------------------------------------------------------------------------            
 
 end Behavioral;
