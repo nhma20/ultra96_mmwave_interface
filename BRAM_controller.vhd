@@ -38,8 +38,7 @@ entity BRAM_controller is
         --rst     	:   in  STD_LOGIC;
 
         --  Data in ports:
-        data_in     :   in  STD_LOGIC_VECTOR(7 downto 0);
-        --data_in     :   in  STD_LOGIC_VECTOR(127 downto 0);
+        data_in     :   in  STD_LOGIC_VECTOR(127 downto 0);
         --channel_in  :   in  STD_LOGIC_VECTOR(1 downto 0);
         irq_in      :   in  STD_LOGIC;
 
@@ -59,9 +58,7 @@ begin
     bram_addr(31 downto 4)  <=  (30 => '1', others => '0');
     bram_addr(3 downto 0)   <=  "0000"; --channel_in & "00";
     bram_en                 <=  '1';
-    bram_dout               <=  "000000000000000000000000" & data_in; 
-    --bram_dout               <=  data_in(127 downto 96); 
+    bram_dout               <=  data_in(127 downto 96); 
     bram_wr                 <=  irq_in & irq_in & irq_in & irq_in;
 
 end Behavioral;
-
