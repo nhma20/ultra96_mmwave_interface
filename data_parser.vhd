@@ -38,11 +38,8 @@ entity data_parser is
            i_Clk        : in STD_LOGIC;
            i_Ena        : in STD_LOGIC;
            i_Rst        : in std_logic ;
-           --o_Error      : out std_logic;
-           --o_Found_Magic: out STD_LOGIC;
-           o_set_done   : out STD_LOGIC;
-           o_Data_rdy   : out STD_LOGIC;
            o_data_out   : out std_logic_vector(127 downto 0) := (others => '0');
+           o_set_and_rdy: out std_logic_vector(1 downto 0);
            o_Debug      : out std_logic_vector(7 downto 0) := (others => '0')  
     );
 end data_parser;
@@ -51,7 +48,6 @@ architecture Behavioral of data_parser is
     type    STATE_TYPE      is  (s_rst, s_magic_word, 
     s_frame_hdr, s_tlv_hdr, s_tlv_points, s_tlv_other, s_error);    --  add states here
     signal  current_state   :   STATE_TYPE  :=  s_rst;
-    signal found_magic_s    :   std_logic := '0';
     signal magic_word_buff  :   std_logic_vector(63 downto 0) := (others => '0');
     signal packet_size      :   std_logic_vector(31 downto 0) := (others => '0');
     signal num_points       :   std_logic_vector(31 downto 0) := (others => '0');
@@ -61,10 +57,9 @@ architecture Behavioral of data_parser is
     signal y_arr            :   std_logic_vector(31 downto 0) := (others => '0');
     signal z_arr            :   std_logic_vector(31 downto 0) := (others => '0');
     signal dp_arr           :   std_logic_vector(31 downto 0) := (others => '0');
-    signal r_data_rdy       :   std_logic := '0';
     signal r_error          :   std_logic := '0';
     signal ena_shift_reg    :   std_logic_vector(1 downto 0) := "00";
-    signal all_points_sent  :   std_logic := '0';
+    signal rdy_sig          :   std_logic_vector(1 downto 0) := "00";
 
 begin
 
@@ -108,13 +103,12 @@ begin
 --                r_data_rdy <= '0';
 --                all_points_sent <= '0';
                 if ena_shift_reg = ena_rising then
-                    r_data_rdy <= '0';--------------------------
-                    all_points_sent <= '0';----------------------
+                    rdy_sig <= "00";
                     magic_word_buff_var(7 downto 0) := i_RX_Byte;
                     if magic_word_buff_var = magic_word then
-                        found_magic_s <= '1';
                         hdr_cnt := 0;
                         packets_rxd := 8;
+                        magic_word_buff_var := (others => '0');
                         current_state <= s_frame_hdr;
                     else -- left shift 1 byte
                         magic_word_buff_var := magic_word_buff_var(55 downto 0) & "00000000";
@@ -126,7 +120,6 @@ begin
                 
     --------------------------------------FRAME HEADER----------------------------                  
             when s_frame_hdr =>
-                found_magic_s <= '0';
                 if ena_shift_reg = ena_rising then
                     if hdr_cnt < 4 then
                         hdr_cnt := hdr_cnt + 1;
@@ -192,9 +185,7 @@ begin
                 --    r_data_rdy <= '0';
                 --end if;
                 if ena_shift_reg = ena_rising then
-                    if r_data_rdy = '1' then
-                        r_data_rdy <= '0';
-                    end if;
+                    rdy_sig <= "00";
                     if to_integer(unsigned(num_points)) = 0 then
                         current_state <= s_magic_word;
                     elsif x_cnt < 4 then
@@ -211,21 +202,29 @@ begin
                         dp_cnt := dp_cnt  + 1;
                         if dp_cnt = 4 then 
                             rxd_points := rxd_points + 1;
-                            r_data_rdy <= '1';
                             if rxd_points < to_integer(unsigned(num_points)) then
+                                rdy_sig <= "01";
                                 x_cnt := 0;
                                 y_cnt := 0;
                                 z_cnt := 0;
                                 dp_cnt := 0;
                             elsif rxd_points = to_integer(unsigned(num_points)) then
+                                rdy_sig <= "11";
                                 rxd_points := 0;
-                                all_points_sent <= '1';
                                 current_state <= s_magic_word;
                             elsif rxd_points > to_integer(unsigned(num_points)) then
+                                x_cnt := 0;
+                                y_cnt := 0;
+                                z_cnt := 0;
+                                dp_cnt := 0;
                                 current_state <= s_error;
                             end if;
                         end if;
                     else
+                        x_cnt := 0;
+                        y_cnt := 0;
+                        z_cnt := 0;
+                        dp_cnt := 0;
                         current_state <= s_error;
                     end if;
                     packets_rxd := packets_rxd + 1;
@@ -272,13 +271,12 @@ begin
             packet_size <= (others => '0');
             num_points <= (others => '0');
             tlv_hdr <= (others => '0');
-            skip_length <= 0;--(others => '0');
+            skip_length <= 0;
             x_arr <= (others => '0');
             y_arr <= (others => '0');
             z_arr <= (others => '0');
             dp_arr <= (others => '0');
-            r_data_rdy <= '0';
-            found_magic_s <= '0';
+            rdy_sig <= "00";
             r_error <= '0';
         else 
             null;
@@ -317,16 +315,11 @@ o_Debug(4) <= '1' when current_state = s_tlv_points  else '0';
 o_Debug(5) <= '1' when current_state = s_tlv_other   else '0'; 
 o_Debug(6) <= '1' when current_state = s_error else '0'; 
 o_Debug(7) <= '1';
---o_Debug <= num_points(31 downto 24);
 
---o_Found_Magic <= found_magic_s;
 
-o_set_done <= all_points_sent;
-
+o_set_and_rdy <= rdy_sig;
 o_data_out <= x_arr & y_arr & z_arr & dp_arr;
-o_Data_rdy <= r_data_rdy;
 
---o_Error <= r_error;
 ----------------------------------------------------------------------------------            
 
 end Behavioral;
