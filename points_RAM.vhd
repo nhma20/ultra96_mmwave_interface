@@ -35,10 +35,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity points_RAM is
 
@@ -73,6 +69,7 @@ architecture Behavioral of points_RAM is
     
     signal s_point_addr     : std_logic_vector(4 downto 0) := "00000"; -- @@@@@@@@@@@ testing
     signal test             : std_logic_vector(1 downto 0) := "00";
+    signal one              : std_logic_vector(4 downto 0) := "00001";
 
 begin
 
@@ -129,6 +126,7 @@ begin
                     num_points_out <= points_stored; 
                     points_stored := 0;
                     ram_selector <= '1';
+                    s_point_addr <= std_logic_vector(unsigned(s_point_addr) + unsigned(one));
                     current_state <= s_ram_0;
                 else
                     current_state <= s_ram_1;
@@ -138,16 +136,14 @@ begin
                 null;
         end case;
     -----------------------------------------------------------------------------
---        if (i_Rst = '1') then
---            current_state   <=  s_rst;          -- Reset state
---            points_stored := 0;
---            num_points_out <= 0;
---            ram_0 <= (others => (others => '0')); 
---            ram_1 <= (others => (others => '0'));  
---            s_data_rdy <= '1'; -- overwrite BRAM with 0's
---        else 
---            null;
---        end if;
+        if (i_Rst = '1') then
+            current_state   <=  s_rst;          -- Reset state
+            points_stored := 0;
+            num_points_out <= 0;
+            ram_0 <= (others => (others => '0')); 
+            ram_1 <= (others => (others => '0'));  
+            s_data_rdy <= '1'; -- overwrite BRAM with 0's
+        end if;
         
     -----------------------------------------------------------------------------
       
@@ -187,8 +183,8 @@ begin
       --o_data_out <= s_data_out;
 --    o_data_out <= ram_0(to_integer(unsigned(i_point_addr))) when ram_selector = '0' else ram_1(to_integer(unsigned(i_point_addr)));
     --o_test <= s_data_out(127 downto 120);
-    o_test <= s_data_rdy & "00" & std_logic_vector(to_unsigned(num_points_out, 5));
-    --o_test <= s_data_rdy & "00000" & i_set_and_rdy;
+    --o_test <= s_data_rdy & "00" & std_logic_vector(to_unsigned(num_points_out, 5));
+    o_test <= s_data_rdy & "00000" & i_set_and_rdy;
     --o_test <= s_data_rdy & ram_0(to_integer(unsigned(s_point_addr)))(127 downto 121) when ram_selector = '0' else s_data_rdy & ram_1(to_integer(unsigned(s_point_addr)))(127 downto 121);
     o_data_out <= ram_0(to_integer(unsigned(s_point_addr))) when ram_selector = '0' else ram_1(to_integer(unsigned(s_point_addr)));
     o_num_points <= std_logic_vector(to_unsigned(num_points_out, o_num_points'length));
