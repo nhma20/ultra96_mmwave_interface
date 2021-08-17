@@ -17,7 +17,7 @@ use ieee.numeric_std.all;
  
 entity UART_RX is
   generic (
-    g_CLKS_PER_BIT : integer := 868     -- 108.506944
+    g_CLKS_PER_BIT : integer := 109     -- 108.506944 (921600)   868 (115200)
     );
   port (
     i_Clk       : in  std_logic;
