@@ -169,6 +169,10 @@ CLI: 115200
  
 ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/U96_40_pinout.png?raw=true) ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/U96_60_pinout.png?raw=true)
  
+13. UART from PC to FPGA (USBtoTTY) can be used for debugging. Send recorded mmwave UART streams and see response.
+ 
+ 
+ 
 ## TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
 2. :green_circle: Figure out how to use PS/PL clock without making new platform each time.
