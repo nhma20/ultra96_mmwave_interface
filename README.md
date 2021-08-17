@@ -179,4 +179,5 @@ CLI: 115200
 8. :green_circle: How to interpret USB outpout on FPGA? Turn into TTL with FTDI? Route to UART_BT JTAG pins? Use 60-pin high speed connector
 9. :green_circle: Interface with EVM UART from FPGA
 10. :green_circle: Store "points" in BRAM
-11. 
+11. :yellow_circle: How to perform search? What to include in search - points, phase, normalized current? 32 points alone results in 4.3 billion combinations, explodes further when adding phase and/or current information.
+12. :yellow_circle: Implement on FPGA - use VHDL or HLS? Matlab Coder or Vitis HLS?
