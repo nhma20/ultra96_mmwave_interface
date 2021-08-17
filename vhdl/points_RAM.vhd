@@ -49,7 +49,7 @@ entity points_RAM is
            i_set_and_rdy: in std_logic_vector(1 downto 0);
            o_data_rdy   : out STD_LOGIC;
            o_num_points : out STD_LOGIC_VECTOR(4 downto 0);
-           o_test       : out std_logic_vector(7 downto 0);
+           --o_test       : out std_logic_vector(7 downto 0);
            o_data_out   : out STD_LOGIC_VECTOR(127 downto 0)
           );
 end points_RAM;
@@ -181,12 +181,12 @@ begin
 
    
       --o_data_out <= s_data_out;
---    o_data_out <= ram_0(to_integer(unsigned(i_point_addr))) when ram_selector = '0' else ram_1(to_integer(unsigned(i_point_addr)));
     --o_test <= s_data_out(127 downto 120);
     --o_test <= s_data_rdy & "00" & std_logic_vector(to_unsigned(num_points_out, 5));
-    o_test <= s_data_rdy & "00000" & i_set_and_rdy;
+    --o_test <= s_data_rdy & "00000" & i_set_and_rdy;
     --o_test <= s_data_rdy & ram_0(to_integer(unsigned(s_point_addr)))(127 downto 121) when ram_selector = '0' else s_data_rdy & ram_1(to_integer(unsigned(s_point_addr)))(127 downto 121);
-    o_data_out <= ram_0(to_integer(unsigned(s_point_addr))) when ram_selector = '0' else ram_1(to_integer(unsigned(s_point_addr)));
+    --o_data_out <= ram_0(to_integer(unsigned(s_point_addr))) when ram_selector = '0' else ram_1(to_integer(unsigned(s_point_addr)));
+    o_data_out <= ram_0(to_integer(unsigned(i_point_addr))) when ram_selector = '0' else ram_1(to_integer(unsigned(i_point_addr)));
     o_num_points <= std_logic_vector(to_unsigned(num_points_out, o_num_points'length));
     o_data_rdy <= s_data_rdy;
     
