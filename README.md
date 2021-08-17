@@ -133,7 +133,7 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 7. In Vitis, left click 'ultra96_simple_application_system' in the explorer window and 'Debug as -> Launch hardware'. This initializes PS side. 
 8. In Vivado, Program device with bitstream and all should work as expected.
 9. Modify Vivado project as needed, generate new bitstream, and program device to test added functionality.
-10. To add BRAM/UART stuff, use helloworld.c file from this repo and rebuild Vitis project.
+10. To add BRAM/UART stuff, use helloworld.c file from this repo and rebuild Vitis project. Uses JTAG/UART port on Ultra96V2.
 
 
 
