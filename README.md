@@ -138,7 +138,7 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 
 
 ## FPGA platform 
-Data path: UART_RX (receive raw UART data from port) -> data_parser (interpret UART packages according to frame/header/payload above) -> points_RAM (store points in RAM) -> BRAM_controller (reads points from RAM, sends points to UART so they can be read from e.g. PC)
+Data path: UART_RX (receive raw UART data from port) -> data_parser (interpret UART packages according to frame/header/payload above) -> points_RAM (store points in ping-pong-buffer RAM) -> BRAM_controller (reads points from RAM, sends points to UART so they can be read from e.g. PC)
 
 Layout:
 
