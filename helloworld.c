@@ -45,10 +45,17 @@
  *   ps7_uart    115200 (configured by bootrom/bsp)
  */
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include "platform.h"
 #include "xil_printf.h"
 #include "xbram.h"
+
 
 
 #define BRAM(A)        ((volatile u32*)px_config->MemBaseAddress)[A]
@@ -73,47 +80,19 @@ int main()
     uint32_t data_array[32];
     while (1){
 
+    	usleep(200000);
     	//printf("\e[1;1H\e[2J \n\r Points (x values only):");
-    	printf("Points (x values only):");
+    	//printf("Points (x values only):");
     	for(int i = 0; i < 32; i++){
         	read_data = (uint32_t)BRAM(i); // 0 = BRAM address to read from
-        	printf("\n\r  %u", read_data);
-
-        	/*printf("\n\r  %u \n\r  %u \n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u
-					\n\r  %u", data_array"
-							");*/
+        	data_array[i] = read_data;
+        	//printf("\n\r  %u", read_data);
     	}
-    	printf("\n\r");
 
-
+    	print("\n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n\r");
+    	printf("Points (x values only): \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n\r  %u \n \n \n \n \n \n \n", data_array[0],data_array[1],data_array[2],data_array[3],data_array[4], data_array[5], data_array[6], data_array[7],
+				data_array[8],data_array[9],data_array[10],data_array[3],data_array[12],data_array[13], data_array[14], data_array[15], data_array[16], data_array[17], data_array[18], data_array[19],
+				data_array[20], data_array[21], data_array[22], data_array[23],data_array[24], data_array[25],data_array[26], data_array[27],data_array[28], data_array[29], data_array[30], data_array[31]);
 
 
     }
