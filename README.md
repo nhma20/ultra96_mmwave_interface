@@ -133,6 +133,16 @@ cd /tools/Xilinx/Vitis/2021.1/bin/ && sudo ./vitis
 7. In Vitis, left click 'ultra96_simple_application_system' in the explorer window and 'Debug as -> Launch hardware'. This initializes PS side. 
 8. In Vivado, Program device with bitstream and all should work as expected.
 9. Modify Vivado project as needed, generate new bitstream, and program device to test added functionality.
+10. To add BRAM/UART stuff, use helloworld.c file from this repo and rebuild Vitis project.
+
+
+
+## FPGA platform 
+Data path: UART_RX (receive raw UART data from port) -> data_parser (interpret UART packages according to frame/header/payload above) -> points_RAM (store points in RAM) -> BRAM_controller (reads points from RAM, sends points to UART so they can be read from e.g. PC)
+
+Layout:
+
+![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/mmwave_uart_ram_bram_diagram.png?raw=true)
 
 
 ## MISC
@@ -165,23 +175,8 @@ CLI: 115200
 3. :green_circle: Find suitable interface on IWR6843AOPEVM board -> hard coded config keeps UART data streaming while board is powered
 5. :green_circle: How to send config file from FPGA to IWR6843AOPEVM -> HCC (hard code config) which makes board automatically stream data once turned on
 6. :green_circle: How to request/receive data from IWR6843AOPEVM -> Automatically streams data on UART port when HCC'd
-7. :yellow_circle: Interpret UART packages automatically sent from EVM
-8. :yellow_circle: How to interpret USB outpout on FPGA? Turn into TTL with FTDI? Route to UART_BT JTAG pins? Other options?
-9. :yellow_circle: Interface with EVM UART from FPGA
-10. :yellow_circle: Store "points" in BRAM
-
-:yellow_circle: Impossible to reroute UART/SPI (https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/1021061/iwr6843aopevm-pins-for-spi-or-uart-not-usb-or-60-pin) Switch to IWR1443BOOST instead?
- - Modified "14xx - mmWave SDK Demo" to include HCC (https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/846384/awr1843boost-hardcoding-config-onto-the-device and https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/708175/ccs-iwr1443-there-are-some-question-in-mmwdemo_clisensorstop-1-initcfg_stop-why/2616079#2616079).
- - Need 2 SOP jumpers to flash IWR1443BOOST
- - Check if UART anywhere on board without CLI
- - Pinmux to re-route UART to other pins. UART_config chose between sic-a/b 
-(https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/1022319/iwr1443boost-read-uart-from-somewhere-else-other-than-usb-or-60-pin)
-
- 
- 
- IWR6843AOPEVM I2C:
- - mss_main.c changes:
- -- included I2C.h
- -- added I2C PINMUX under platformInit
- --
-
+7. :green_circle: Interpret UART packages automatically sent from EVM
+8. :green_circle: How to interpret USB outpout on FPGA? Turn into TTL with FTDI? Route to UART_BT JTAG pins? Use 60-pin high speed connector
+9. :green_circle: Interface with EVM UART from FPGA
+10. :green_circle: Store "points" in BRAM
+11. 
