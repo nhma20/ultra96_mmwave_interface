@@ -144,6 +144,8 @@ Layout:
 
 ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/mmwave_uart_ram_bram_diagram.png?raw=true)
 
+- Uses 100MHz clock from PS side.
+
 
 ## MISC
 1. The ISK antenna has 15 degree angular resolution compared to the AOP's 30 degree in azimuth. The ISK's antenna also has a larger gain allowing it to see further. Please see the antenna database for more specifications.
