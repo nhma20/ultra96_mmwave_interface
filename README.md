@@ -172,6 +172,7 @@ CLI: 115200
 ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/U96_40_pinout.png?raw=true) ![Alt text](https://github.com/nhma20/ultra96_mmwave_interface/blob/main/Pictures/U96_60_pinout.png?raw=true)
  
 13. UART from PC to FPGA (USBtoTTY) can be used for debugging. Send recorded mmwave UART streams and see response.
+14. Use demo visualizer->real time tuning to change clustering and FOV settings to fit use case.
  
  
  
