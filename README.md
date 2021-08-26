@@ -173,7 +173,8 @@ CLI: 115200
  
 13. UART from PC to FPGA (USBtoTTY) can be used for debugging. Send recorded mmwave UART streams and see response.
 14. Use demo visualizer->real time tuning to change clustering and FOV settings to fit use case (https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/758716/iwr6843-how-to-adjust-the-parameters-on-the-ti-demo-visualizer-to-obtain-maximum-number-of-points/2803108#2803108).
- 
+15. Count in binary to generate all combinations of set. Check if input is power of 2 to skip combinations with just one item.
+16. For search, use 32-bit binary string to indicate which positions in RAM to use for current fit.
  
  
 ## TODO
