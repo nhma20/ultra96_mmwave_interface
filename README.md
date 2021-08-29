@@ -182,6 +182,7 @@ CLI: 115200
  - Right click on X_X_hcc_dss and rebuild.
  - Once done, right click on X_X_hcc_mss and rebuild.
  - .bin file should be in /Debug/ folder
+ - (likely have to port it to AOP demo, described under "Implementing CLI Bypass in Other Labs")
  
  
 ## TODO
