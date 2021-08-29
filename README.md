@@ -176,7 +176,12 @@ CLI: 115200
 15. Count in binary to generate all combinations of set. Check if input is power of 2 to skip combinations with just one item.
 16. For search, use 32-bit binary string to indicate which positions in RAM to use for current fit.
 17. mmWave HCC without all extra TLV: https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/974232/awr1843boost-how-to-remove-extra-tlv-s-from-radar-output-don-t-want-radar-to-send-other-than-mmwdemo_output_msg_detected_points-tlv-info?tisearch=e2e-sitesearch&keymatch=select%20tlv#
+ - Edit MmwDemo_transmitProcessedOutput() function
 18. HCC Guide https://dev.ti.com/tirex/explore/node?node=AK2Pfzv8YhOKYSVHLm9wQw__VLyFKFf__LATEST
+ - In CCS (code composer studio), import HCC project from Industrial Toolbox (make sure latest)
+ - Right click on X_X_hcc_dss and rebuild.
+ - Once done, right click on X_X_hcc_mss and rebuild.
+ - .bin file should be in /Debug/ folder
  
  
 ## TODO
