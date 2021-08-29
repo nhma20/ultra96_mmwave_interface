@@ -183,6 +183,7 @@ CLI: 115200
  - Once done, right click on X_X_hcc_mss and rebuild.
  - .bin file should be in /Debug/ folder
  - (likely have to port it to AOP demo, described under "Implementing CLI Bypass in Other Labs")
+ - More info https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/981341/iwr6843aopevm-how-to-realize-hard-corded-demo-with-iwr6843aop-es2-0-without-cfg
  
  
 ## TODO
