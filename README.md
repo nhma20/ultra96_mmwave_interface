@@ -175,6 +175,7 @@ CLI: 115200
 14. Use demo visualizer->real time tuning to change clustering and FOV settings to fit use case (https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/758716/iwr6843-how-to-adjust-the-parameters-on-the-ti-demo-visualizer-to-obtain-maximum-number-of-points/2803108#2803108).
 15. Count in binary to generate all combinations of set. Check if input is power of 2 to skip combinations with just one item.
 16. For search, use 32-bit binary string to indicate which positions in RAM to use for current fit.
+17. mmWave HCC without all extra TLV: https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/974232/awr1843boost-how-to-remove-extra-tlv-s-from-radar-output-don-t-want-radar-to-send-other-than-mmwdemo_output_msg_detected_points-tlv-info?tisearch=e2e-sitesearch&keymatch=select%20tlv#
  
  
 ## TODO
