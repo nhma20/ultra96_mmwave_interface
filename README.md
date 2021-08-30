@@ -8,11 +8,21 @@ Tested with:
 Board files installed by creating new project, and pressing refresh (lower left corner) when looking for boards. Ultra96V2 should appear now. Can close Vivado before finishing creation of new project. 
 
 
-## Flash hard coded config binary to EVM board
-1. Follow https://dev.ti.com/tirex/explore/node?node=ANHlPre7EOLunyygFnRRKg__VLyFKFf__LATEST which is also compatible with AOP version. 
-Download the Industrial Toolbox and find the mentioned binary. Follow https://training.ti.com/hardware-setup-iwr6843aop for flashing instructions. 
+## Create and flash hard coded config (HCC) binary to EVM board
+HCC configures the EVM board automatically upon power-up without needing to send CLI commands from a host. Data is automatically output over UART.
+1. Follow https://dev.ti.com/tirex/explore/node?node=AK2Pfzv8YhOKYSVHLm9wQw__VLyFKFf__LATEST which is also compatible with AOP version. 
+Download the Industrial Toolbox and find the mentioned binary. 
+2. Rebuild binaries:
+ - In CCS (code composer studio), import HCC project from Industrial Toolbox (make sure latest)
+ - (optional) Edit MmwDemo_transmitProcessedOutput() function to remove unwanted TLVs to create HCC without all extra TLV: https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/974232/awr1843boost-how-to-remove-extra-tlv-s-from-radar-output-don-t-want-radar-to-send-other-than-mmwdemo_output_msg_detected_points-tlv-info?tisearch=e2e-sitesearch&keymatch=select%20tlv#
+ - Right click on X_X_hcc_dss and rebuild.
+ - Once done, right click on X_X_hcc_mss and rebuild.
+ - .bin file should be in /Debug/ folder
+ - (May have to port it to AOP demo, described under "Implementing CLI Bypass in Other Labs")
+ - More info https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/981341/iwr6843aopevm-how-to-realize-hard-corded-demo-with-iwr6843aop-es2-0-without-cfg
+3. Follow https://training.ti.com/hardware-setup-iwr6843aop for flashing instructions. 
 Auto-detecting device did not work, enter manually (like in linked video).
-2. EVM board should now be outputting data on the UART port. 
+4. EVM board should now be outputting data on the UART ports (USB and 60-pin (MSS_LOGGER pin)). 
 
 ## Interpret EVM UART data stream
 https://dev.ti.com/tirex/explore/content/mmwave_industrial_toolbox_4_8_0/labs/out_of_box_demo/common/docs/understanding_oob_uart_data.html
@@ -175,16 +185,7 @@ CLI: 115200
 14. Use demo visualizer->real time tuning to change clustering and FOV settings to fit use case (https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/758716/iwr6843-how-to-adjust-the-parameters-on-the-ti-demo-visualizer-to-obtain-maximum-number-of-points/2803108#2803108).
 15. Count in binary to generate all combinations of set. Check if input is power of 2 to skip combinations with just one item.
 16. For search, use 32-bit binary string to indicate which positions in RAM to use for current fit.
-17. mmWave HCC without all extra TLV: https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/974232/awr1843boost-how-to-remove-extra-tlv-s-from-radar-output-don-t-want-radar-to-send-other-than-mmwdemo_output_msg_detected_points-tlv-info?tisearch=e2e-sitesearch&keymatch=select%20tlv#
- - Edit MmwDemo_transmitProcessedOutput() function
-18. HCC Guide https://dev.ti.com/tirex/explore/node?node=AK2Pfzv8YhOKYSVHLm9wQw__VLyFKFf__LATEST
- - In CCS (code composer studio), import HCC project from Industrial Toolbox (make sure latest)
- - Right click on X_X_hcc_dss and rebuild.
- - Once done, right click on X_X_hcc_mss and rebuild.
- - .bin file should be in /Debug/ folder
- - (likely have to port it to AOP demo, described under "Implementing CLI Bypass in Other Labs")
- - More info https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/981341/iwr6843aopevm-how-to-realize-hard-corded-demo-with-iwr6843aop-es2-0-without-cfg
- 
+
  
 ## TODO
 1. :green_circle: Configure ultra96 board, simple I/O program
