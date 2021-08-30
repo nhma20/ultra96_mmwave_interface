@@ -13,13 +13,13 @@ HCC configures the EVM board automatically upon power-up without needing to send
 1. Follow https://dev.ti.com/tirex/explore/node?node=AK2Pfzv8YhOKYSVHLm9wQw__VLyFKFf__LATEST which is also compatible with AOP version. 
 Download the Industrial Toolbox and find the mentioned binary. 
 2. Rebuild binaries:
- - In CCS (code composer studio), import HCC project from Industrial Toolbox (make sure latest)
- - (optional) Edit MmwDemo_transmitProcessedOutput() function to remove unwanted TLVs to create HCC without all extra TLV: https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/974232/awr1843boost-how-to-remove-extra-tlv-s-from-radar-output-don-t-want-radar-to-send-other-than-mmwdemo_output_msg_detected_points-tlv-info?tisearch=e2e-sitesearch&keymatch=select%20tlv#
- - Right click on X_X_hcc_dss and rebuild.
- - Once done, right click on X_X_hcc_mss and rebuild.
- - .bin file should be in /Debug/ folder
- - (May have to port it to AOP demo, described under "Implementing CLI Bypass in Other Labs")
- - More info https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/981341/iwr6843aopevm-how-to-realize-hard-corded-demo-with-iwr6843aop-es2-0-without-cfg
+  - In CCS (code composer studio), import HCC project from Industrial Toolbox (make sure latest)
+  - (optional) Edit MmwDemo_transmitProcessedOutput() function to remove unwanted TLVs to create HCC without all extra TLV: https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/974232/awr1843boost-how-to-remove-extra-tlv-s-from-radar-output-don-t-want-radar-to-send-other-than-mmwdemo_output_msg_detected_points-tlv-info?tisearch=e2e-sitesearch&keymatch=select%20tlv#
+  - Right click on X_X_hcc_dss and rebuild.
+  - Once done, right click on X_X_hcc_mss and rebuild.
+  - .bin file should be in /Debug/ folder
+  - (May have to port it to AOP demo, described under "Implementing CLI Bypass in Other Labs")
+  - More info https://e2e.ti.com/support/sensors-group/sensors/f/sensors-forum/981341/iwr6843aopevm-how-to-realize-hard-corded-demo-with-iwr6843aop-es2-0-without-cfg
 3. Follow https://training.ti.com/hardware-setup-iwr6843aop for flashing instructions. 
 Auto-detecting device did not work, enter manually (like in linked video).
 4. EVM board should now be outputting data on the UART ports (USB and 60-pin (MSS_LOGGER pin)). 
