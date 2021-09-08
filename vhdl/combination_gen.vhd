@@ -41,19 +41,24 @@ entity combination_gen is
            i_num_points : in STD_LOGIC_VECTOR (4 downto 0);
            i_next       : in STD_LOGIC;
            o_not_used   : out STD_LOGIC_VECTOR (max_num_points downto 0);
-           o_phase_0    : out STD_LOGIC_VECTOR (max_num_points downto 0);
-           o_phase_120  : out STD_LOGIC_VECTOR (max_num_points downto 0);
-           o_phase_180  : out STD_LOGIC_VECTOR (max_num_points downto 0);
-           o_phase_240  : out STD_LOGIC_VECTOR (max_num_points downto 0);
+           o_s2_phase_0    : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 2-phase 0 deg
+           o_s3_phase_0    : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 3-phase 0 deg
+           o_s3_phase_120  : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 2-phase 120 deg
+           o_s2_phase_180  : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 2-phase 180 deg
+           o_s3_phase_240  : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 3-phase 240 deg
            o_data_rdy   : out std_logic
            );
 end combination_gen;
 
 
 architecture Behavioral of combination_gen is
-    type   STATE_TYPE      is  (s_rst, s_inc_comb, s_comb_check, s_mask_0, s_mask_1);    --  add states here
-    signal current_state     : STATE_TYPE  :=  s_rst;
-    signal s_data_rdy        : std_logic := '0';  
+    type   STATE_TYPE       is  (s_rst, s_inc_comb, s_comb_check, s_mask_0, s_mask_1);    --  add states here
+    type   mask_0           is  array(max_num_points downto 0) of integer range 0 to 1; -- 0=0deg, 1=180deg
+    type   mask_1           is  array(max_num_points downto 0) of integer range 0 to 2; -- 0=0deg, 1=120deg, 2=240deg
+    signal current_state    : STATE_TYPE  :=  s_rst;
+    signal sig_mask_0       : mask_0 := (others => 0);
+    signal sig_mask_1       : mask_1 := (others => 0);
+    signal s_data_rdy       : std_logic := '0';  
     --signal one              : std_logic_vector(4 downto 0) := "00001";
     signal next_shift_reg   : std_logic_vector(1 downto 0) := "00";
     signal s_not_used       : std_logic_vector(max_num_points downto 0) := (others => '0');
@@ -61,9 +66,9 @@ architecture Behavioral of combination_gen is
     signal s_phase_120      : std_logic_vector(max_num_points downto 0) := (others => '0');
     signal s_phase_180      : std_logic_vector(max_num_points downto 0) := (others => '0');
     signal s_phase_240      : std_logic_vector(max_num_points downto 0) := (others => '0');
-    signal sig_comb_mask    : std_logic_vector(max_num_points downto 0) := (others => '0');
-    signal sig_mask_0       : std_logic_vector(max_num_points downto 0) := (others => '0');
-    signal sig_mask_1       : std_logic_vector(max_num_points downto 0) := (others => '0');
+    signal sig_comb_mask    : std_logic_vector(max_num_points downto 0) := (others => '0'); -- '1' use index in ram, '0' do not use index in ram
+    --signal sig_mask_0       : std_logic_vector(max_num_points downto 0) := (others => '0');
+    --signal sig_mask_1       : std_logic_vector(max_num_points downto 0) := (others => '0');
 
 begin
 
@@ -89,6 +94,8 @@ begin
     -----------------------------------------RESET--------------------------------          
             when s_rst =>
                 if i_Rst = '0' then
+                    sig_mask_0 <= (others => 0);
+                    sig_mask_1 <= (others => 0);
                     sig_comb_mask <= (0 => '1', others => '0'); -- populate LSB, one before first valid comb
                     current_state <= s_inc_comb;
                 else 
@@ -99,7 +106,7 @@ begin
                 -- increment mask, or reset if fully incremented
                 if sig_comb_mask = fully_incremtd then
                     -- something reset here
-                    -- tell search set done
+                    -- tell search all combs done
                     -- some state transition
                 else
                     sig_comb_mask <= std_logic_vector(unsigned(sig_comb_mask) + unsigned(one)); -- increment comb_mask
@@ -182,5 +189,53 @@ begin
     ------------------------------------------------------------------------------
     
     
-end Behavioral;
+    -- mask outputs, hardcoded to 8 for now, use generate to match generic 'max_num_points'
+o_s2_phase_0(0) <= '1' when sig_mask_0(0) = 0 and sig_comb_mask(0) = '1' else '0'; -- 2-phase 0 deg output
+o_s2_phase_0(1) <= '1' when sig_mask_0(1) = 0 and sig_comb_mask(1) = '1' else '0';
+o_s2_phase_0(2) <= '1' when sig_mask_0(2) = 0 and sig_comb_mask(2) = '1' else '0';
+o_s2_phase_0(3) <= '1' when sig_mask_0(3) = 0 and sig_comb_mask(3) = '1' else '0';
+o_s2_phase_0(4) <= '1' when sig_mask_0(4) = 0 and sig_comb_mask(4) = '1' else '0';
+o_s2_phase_0(5) <= '1' when sig_mask_0(5) = 0 and sig_comb_mask(5) = '1' else '0';
+o_s2_phase_0(6) <= '1' when sig_mask_0(6) = 0 and sig_comb_mask(6) = '1' else '0';
+o_s2_phase_0(7) <= '1' when sig_mask_0(7) = 0 and sig_comb_mask(7) = '1' else '0';
 
+o_s2_phase_180(0) <= '1' when sig_mask_0(0) = 1 and sig_comb_mask(0) = '1' else '0'; -- 2-phase 180 deg output
+o_s2_phase_180(1) <= '1' when sig_mask_0(1) = 1 and sig_comb_mask(1) = '1' else '0';
+o_s2_phase_180(2) <= '1' when sig_mask_0(2) = 1 and sig_comb_mask(2) = '1' else '0';
+o_s2_phase_180(3) <= '1' when sig_mask_0(3) = 1 and sig_comb_mask(3) = '1' else '0';
+o_s2_phase_180(4) <= '1' when sig_mask_0(4) = 1 and sig_comb_mask(4) = '1' else '0';
+o_s2_phase_180(5) <= '1' when sig_mask_0(5) = 1 and sig_comb_mask(5) = '1' else '0';
+o_s2_phase_180(6) <= '1' when sig_mask_0(6) = 1 and sig_comb_mask(6) = '1' else '0';
+o_s2_phase_180(7) <= '1' when sig_mask_0(7) = 1 and sig_comb_mask(7) = '1' else '0';
+
+
+o_s3_phase_0(0) <= '1' when sig_mask_1(0) = 0 and sig_comb_mask(0) = '1' else '0'; -- 3-phase 0 deg output
+o_s3_phase_0(1) <= '1' when sig_mask_1(1) = 0 and sig_comb_mask(1) = '1' else '0';
+o_s3_phase_0(2) <= '1' when sig_mask_1(2) = 0 and sig_comb_mask(2) = '1' else '0';
+o_s3_phase_0(3) <= '1' when sig_mask_1(3) = 0 and sig_comb_mask(3) = '1' else '0';
+o_s3_phase_0(4) <= '1' when sig_mask_1(4) = 0 and sig_comb_mask(4) = '1' else '0';
+o_s3_phase_0(5) <= '1' when sig_mask_1(5) = 0 and sig_comb_mask(5) = '1' else '0';
+o_s3_phase_0(6) <= '1' when sig_mask_1(6) = 0 and sig_comb_mask(6) = '1' else '0';
+o_s3_phase_0(7) <= '1' when sig_mask_1(7) = 0 and sig_comb_mask(7) = '1' else '0';
+
+o_s3_phase_120(0) <= '1' when sig_mask_1(0) = 1 and sig_comb_mask(0) = '1' else '0'; -- 3-phase 120 deg output
+o_s3_phase_120(1) <= '1' when sig_mask_1(1) = 1 and sig_comb_mask(1) = '1' else '0';
+o_s3_phase_120(2) <= '1' when sig_mask_1(2) = 1 and sig_comb_mask(2) = '1' else '0';
+o_s3_phase_120(3) <= '1' when sig_mask_1(3) = 1 and sig_comb_mask(3) = '1' else '0';
+o_s3_phase_120(4) <= '1' when sig_mask_1(4) = 1 and sig_comb_mask(4) = '1' else '0';
+o_s3_phase_120(5) <= '1' when sig_mask_1(5) = 1 and sig_comb_mask(5) = '1' else '0';
+o_s3_phase_120(6) <= '1' when sig_mask_1(6) = 1 and sig_comb_mask(6) = '1' else '0';
+o_s3_phase_120(7) <= '1' when sig_mask_1(7) = 1 and sig_comb_mask(7) = '1' else '0';
+
+o_s3_phase_240(0) <= '1' when sig_mask_1(0) = 2 and sig_comb_mask(0) = '1' else '0'; -- 3-phase 240 deg output
+o_s3_phase_240(1) <= '1' when sig_mask_1(1) = 2 and sig_comb_mask(1) = '1' else '0';
+o_s3_phase_240(2) <= '1' when sig_mask_1(2) = 2 and sig_comb_mask(2) = '1' else '0';
+o_s3_phase_240(3) <= '1' when sig_mask_1(3) = 2 and sig_comb_mask(3) = '1' else '0';
+o_s3_phase_240(4) <= '1' when sig_mask_1(4) = 2 and sig_comb_mask(4) = '1' else '0';
+o_s3_phase_240(5) <= '1' when sig_mask_1(5) = 2 and sig_comb_mask(5) = '1' else '0';
+o_s3_phase_240(6) <= '1' when sig_mask_1(6) = 2 and sig_comb_mask(6) = '1' else '0';
+o_s3_phase_240(7) <= '1' when sig_mask_1(7) = 2 and sig_comb_mask(7) = '1' else '0';
+
+
+    
+end Behavioral;
