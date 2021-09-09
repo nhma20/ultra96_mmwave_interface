@@ -41,7 +41,6 @@ entity combination_gen is
            i_Rst        : in STD_LOGIC;
            i_num_points : in STD_LOGIC_VECTOR (4 downto 0);
            i_next       : in STD_LOGIC;
-           o_not_used   : out STD_LOGIC_VECTOR (max_num_points downto 0);
            o_s2_phase_0    : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 2-phase 0 deg
            o_s3_phase_0    : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 3-phase 0 deg
            o_s3_phase_120  : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 2-phase 120 deg
@@ -84,9 +83,9 @@ begin
     variable rdy_high_cnt   : integer := 0;
     variable set_high_cnt   : integer := 0;
     variable comb_mask_sum  : integer := 0;
-    --variable comb_mask_idx  : integer := 0;
     variable carry_1        : std_logic := '0';
     variable point_cnt      : integer range 0 to max_num_points := 0;
+    variable mask_sum       : integer := 0;
 
     
     begin
@@ -98,7 +97,7 @@ begin
                 if i_Rst = '0' then
                     sig_mask_0 <= (others => 0);
                     sig_mask_1 <= (others => 0);
-                    sig_comb_mask <= (0 => '1', others => '0'); -- populate LSB, one before first valid comb
+                    sig_comb_mask <= (1 => '1', others => '0'); -- populate LSB+1, one comb before first valid comb
                     current_state <= s_inc_comb;
                 else 
                     current_state  <=  s_rst;
@@ -106,6 +105,7 @@ begin
     ----------------------------------Increment comb_mask-------------------------                
             when s_inc_comb =>
                 -- increment mask, or reset if fully incremented
+                comb_mask_sum := 0; 
                 if sig_comb_mask = fully_incremtd then
                     set_done <= '1';
                     current_state <= s_rst;
@@ -128,27 +128,7 @@ begin
                     current_state <= s_mask_1;
                 else                                -- goto increment s_comb_mask
                     current_state <= s_inc_comb;
-                end if;
-                comb_mask_sum := 0;                
-                        
---                if sig_comb_mask(comb_mask_idx) = '1' then -- get bits set in mask
---                    comb_mask_sum := comb_mask_sum + 1;
---                end if;
---                comb_mask_idx := comb_mask_idx + 1;
-                   
---                if comb_mask_idx = max_num_points+1 then
---                    if comb_mask_sum mod 2 = 0 then     -- goto 2-phase
---                        current_state <= s_mask_0;
---                    elsif comb_mask_sum mod 3 = 0 then  -- goto 3-phase
---                        current_state <= s_mask_1;
---                    else                                -- goto increment s_comb_mask
---                        current_state <= s_inc_comb;
---                    end if;
---                    comb_mask_sum := 0;
---                    comb_mask_idx := 0;                
---                else
---                    current_state <= s_comb_check;
---                end if;               
+                end if;           
     ------------------------------------Increment mask 0--------------------------                
             when s_mask_0 =>
                 if next_shift_reg = ena_rising then -- next comb pls
@@ -161,37 +141,41 @@ begin
                                     carry_1 := '1';
                                 else
                                     sig_mask_0(i) <= sig_mask_0(i) + 1; -- else increment
-                                end if;
-                                point_cnt := 1;   
+                                end if; 
                             else
-                                if sig_mask_0(i) < 1 then -- if just increment on carry
+                                if sig_mask_0(i) < 1 then -- if increment on carry
                                     if carry_1 = '1' then
                                         sig_mask_0(i) <= sig_mask_0(i) + 1;
                                         carry_1 := '0';
                                     end if;
-                                elsif sig_mask_0(i) = 1 then
+                                elsif sig_mask_0(i) = 1 then -- else reset and keep carry for next it
                                     if carry_1 = '1' then
-                                        if i = max_num_points then -- if fully incremented
-                                            if comb_mask_sum mod 3 = 0 then  -- goto 3-phase if mod3=0
-                                                sig_mask_0 <= (others => 0);
-                                                sig_mask_1 <= (others => 0);
-                                                s_data_rdy <= '1';
-                                                current_state <= s_mask_1;
-                                            else 
-                                                sig_mask_0 <= (others => 0); -- else goto increment comb mask
-                                                current_state <= s_inc_comb;
-                                            end if;
-                                            point_cnt := 0;
-                                            carry_1 := '0';
-                                        else -- else reset and keep carry
-                                            sig_mask_0(i) <= 0;
-                                            carry_1 := '1';
-                                        end if;
+                                        sig_mask_0(i) <= 0;
+                                        carry_1 := '1';
                                     end if;
                                 end if;
                             end if;
+                            point_cnt := point_cnt + 1;
                         end if;
+                        mask_sum := mask_sum + sig_mask_0(i);
                     end loop;
+                    
+                    if mask_sum = comb_mask_sum then -- check if last comb for current comb mask. +1 because sig_mask_0 signal won't be assigned last increment until process ends
+                        s_data_rdy <= '0';
+                        if comb_mask_sum mod 3 = 0 then  -- goto 3-phase if mod3=0
+                            sig_mask_0 <= (others => 0);
+                            sig_mask_1 <= (others => 0);
+                            current_state <= s_mask_1;
+                        else 
+                            sig_mask_0 <= (others => 0); -- else goto increment comb mask
+                            current_state <= s_inc_comb;
+                        end if;
+                    else
+                        s_data_rdy <= '1';
+                    end if;
+                    mask_sum := 0;
+                    point_cnt := 0;
+                    carry_1 := '0';
                 else
                     current_state <= s_mask_0;
                 end if;
@@ -207,30 +191,36 @@ begin
                                     carry_1 := '1';
                                 else
                                     sig_mask_1(j) <= sig_mask_1(j) + 1; -- else increment
-                                end if;
-                                point_cnt := 1;   
+                                end if; 
                             else
-                                if sig_mask_1(j) < 2 then -- if just increment on carry
+                                if sig_mask_1(j) < 2 then -- if increment on carry
                                     if carry_1 = '1' then
                                         sig_mask_1(j) <= sig_mask_1(j) + 1;
                                         carry_1 := '0';
                                     end if;
-                                elsif sig_mask_1(j) = 2 then
+                                elsif sig_mask_1(j) = 2 then -- else reset and keep carry for next it
                                     if carry_1 = '1' then
-                                        if j = max_num_points then -- if fully incremented
-                                            sig_mask_1 <= (others => 0); -- goto increment comb mask
-                                            current_state <= s_inc_comb;
-                                            point_cnt := 0;
-                                            carry_1 := '0';
-                                        else -- else reset and keep carry
-                                            sig_mask_1(j) <= 0;
-                                            carry_1 := '1';
-                                        end if;
+                                        sig_mask_1(j) <= 0;
+                                        carry_1 := '1';
                                     end if;
                                 end if;
                             end if;
+                            point_cnt := point_cnt + 1;
                         end if;
+                        mask_sum := mask_sum + sig_mask_1(j);
                     end loop;
+                    
+                    if mask_sum = comb_mask_sum*2 then -- check if last comb for current comb mask. +1 because sig_mask_0 signal won't be assigned last increment until process ends
+                        s_data_rdy <= '0';
+                        sig_mask_0 <= (others => 0); -- else goto increment comb mask
+                        sig_mask_1 <= (others => 0); -- else goto increment comb mask
+                        current_state <= s_inc_comb;
+                    else 
+                        s_data_rdy <= '1';
+                    end if;
+                    mask_sum := 0;
+                    point_cnt := 0;
+                    carry_1 := '0';
                 else
                     current_state <= s_mask_1;
                 end if;
@@ -242,7 +232,6 @@ begin
         if (i_Rst = '1') then
             current_state   <=  s_rst;          -- Reset state
             comb_mask_sum := 0;
-            --comb_mask_idx := 0;
             sig_comb_mask <= (others => '0');
             sig_mask_0 <= (others => 0);
             sig_mask_1 <= (others => 0);
@@ -294,54 +283,6 @@ begin
     
 o_set_done <= set_done;
 o_data_rdy <= s_data_rdy;
-    
---    -- mask outputs, hardcoded to 8 for now, use generate to match generic 'max_num_points'
---o_s2_phase_0(0) <= '1' when sig_mask_0(0) = 0 and sig_comb_mask(0) = '1' and phase_to_out = '0' else '0'; -- 2-phase 0 deg output
---o_s2_phase_0(1) <= '1' when sig_mask_0(1) = 0 and sig_comb_mask(1) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_0(2) <= '1' when sig_mask_0(2) = 0 and sig_comb_mask(2) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_0(3) <= '1' when sig_mask_0(3) = 0 and sig_comb_mask(3) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_0(4) <= '1' when sig_mask_0(4) = 0 and sig_comb_mask(4) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_0(5) <= '1' when sig_mask_0(5) = 0 and sig_comb_mask(5) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_0(6) <= '1' when sig_mask_0(6) = 0 and sig_comb_mask(6) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_0(7) <= '1' when sig_mask_0(7) = 0 and sig_comb_mask(7) = '1' and phase_to_out = '0' else '0';
-
---o_s2_phase_180(0) <= '1' when sig_mask_0(0) = 1 and sig_comb_mask(0) = '1' and phase_to_out = '0' else '0'; -- 2-phase 180 deg output
---o_s2_phase_180(1) <= '1' when sig_mask_0(1) = 1 and sig_comb_mask(1) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_180(2) <= '1' when sig_mask_0(2) = 1 and sig_comb_mask(2) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_180(3) <= '1' when sig_mask_0(3) = 1 and sig_comb_mask(3) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_180(4) <= '1' when sig_mask_0(4) = 1 and sig_comb_mask(4) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_180(5) <= '1' when sig_mask_0(5) = 1 and sig_comb_mask(5) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_180(6) <= '1' when sig_mask_0(6) = 1 and sig_comb_mask(6) = '1' and phase_to_out = '0' else '0';
---o_s2_phase_180(7) <= '1' when sig_mask_0(7) = 1 and sig_comb_mask(7) = '1' and phase_to_out = '0' else '0';
-
-
---o_s3_phase_0(0) <= '1' when sig_mask_1(0) = 0 and sig_comb_mask(0) = '1' and phase_to_out = '1' else '0'; -- 3-phase 0 deg output
---o_s3_phase_0(1) <= '1' when sig_mask_1(1) = 0 and sig_comb_mask(1) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_0(2) <= '1' when sig_mask_1(2) = 0 and sig_comb_mask(2) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_0(3) <= '1' when sig_mask_1(3) = 0 and sig_comb_mask(3) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_0(4) <= '1' when sig_mask_1(4) = 0 and sig_comb_mask(4) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_0(5) <= '1' when sig_mask_1(5) = 0 and sig_comb_mask(5) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_0(6) <= '1' when sig_mask_1(6) = 0 and sig_comb_mask(6) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_0(7) <= '1' when sig_mask_1(7) = 0 and sig_comb_mask(7) = '1' and phase_to_out = '1' else '0';
-
---o_s3_phase_120(0) <= '1' when sig_mask_1(0) = 1 and sig_comb_mask(0) = '1' and phase_to_out = '1' else '0'; -- 3-phase 120 deg output
---o_s3_phase_120(1) <= '1' when sig_mask_1(1) = 1 and sig_comb_mask(1) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_120(2) <= '1' when sig_mask_1(2) = 1 and sig_comb_mask(2) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_120(3) <= '1' when sig_mask_1(3) = 1 and sig_comb_mask(3) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_120(4) <= '1' when sig_mask_1(4) = 1 and sig_comb_mask(4) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_120(5) <= '1' when sig_mask_1(5) = 1 and sig_comb_mask(5) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_120(6) <= '1' when sig_mask_1(6) = 1 and sig_comb_mask(6) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_120(7) <= '1' when sig_mask_1(7) = 1 and sig_comb_mask(7) = '1' and phase_to_out = '1' else '0';
-
---o_s3_phase_240(0) <= '1' when sig_mask_1(0) = 2 and sig_comb_mask(0) = '1' and phase_to_out = '1' else '0'; -- 3-phase 240 deg output
---o_s3_phase_240(1) <= '1' when sig_mask_1(1) = 2 and sig_comb_mask(1) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_240(2) <= '1' when sig_mask_1(2) = 2 and sig_comb_mask(2) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_240(3) <= '1' when sig_mask_1(3) = 2 and sig_comb_mask(3) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_240(4) <= '1' when sig_mask_1(4) = 2 and sig_comb_mask(4) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_240(5) <= '1' when sig_mask_1(5) = 2 and sig_comb_mask(5) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_240(6) <= '1' when sig_mask_1(6) = 2 and sig_comb_mask(6) = '1' and phase_to_out = '1' else '0';
---o_s3_phase_240(7) <= '1' when sig_mask_1(7) = 2 and sig_comb_mask(7) = '1' and phase_to_out = '1' else '0';
-
 
 
 GEN_P2_D0: for i in 0 to max_num_points generate
@@ -366,10 +307,5 @@ end generate GEN_P3_D240;
 
 
 end Behavioral;
-
-
-
-
-
 
 
