@@ -121,10 +121,12 @@ begin
                         comb_mask_sum := comb_mask_sum + 1;
                     end if;
                 end loop;
-                                      
+                
                 if comb_mask_sum mod 2 = 0 then     -- goto 2-phase
+                    s_data_rdy <= '1';
                     current_state <= s_mask_0;
                 elsif comb_mask_sum mod 3 = 0 then  -- goto 3-phase
+                    s_data_rdy <= '1';
                     current_state <= s_mask_1;
                 else                                -- goto increment s_comb_mask
                     current_state <= s_inc_comb;
