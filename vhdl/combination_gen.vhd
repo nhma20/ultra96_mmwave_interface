@@ -46,7 +46,8 @@ entity combination_gen is
            o_s3_phase_120  : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 2-phase 120 deg
            o_s2_phase_180  : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 2-phase 180 deg
            o_s3_phase_240  : out STD_LOGIC_VECTOR (max_num_points downto 0); -- 3-phase 240 deg
-           o_data_rdy   : out std_logic
+           o_set_done      : out std_logic;
+           o_data_rdy      : out std_logic
            );
 end combination_gen;
 
@@ -59,7 +60,6 @@ architecture Behavioral of combination_gen is
     signal sig_mask_0       : mask_0 := (others => 0);
     signal sig_mask_1       : mask_1 := (others => 0);
     signal s_data_rdy       : std_logic := '0';  
-    --signal one              : std_logic_vector(4 downto 0) := "00001";
     signal next_shift_reg   : std_logic_vector(1 downto 0) := "00";
     signal s_not_used       : std_logic_vector(max_num_points downto 0) := (others => '0');
     signal s_phase_0        : std_logic_vector(max_num_points downto 0) := (others => '0');
@@ -67,8 +67,8 @@ architecture Behavioral of combination_gen is
     signal s_phase_180      : std_logic_vector(max_num_points downto 0) := (others => '0');
     signal s_phase_240      : std_logic_vector(max_num_points downto 0) := (others => '0');
     signal sig_comb_mask    : std_logic_vector(max_num_points downto 0) := (others => '0'); -- '1' use index in ram, '0' do not use index in ram
-    --signal sig_mask_0       : std_logic_vector(max_num_points downto 0) := (others => '0');
-    --signal sig_mask_1       : std_logic_vector(max_num_points downto 0) := (others => '0');
+    signal phase_to_out     : std_logic := '0'; -- 0 = output 2-phase, 1 = output 3-phase
+    signal set_done         : std_logic := '0'; -- indicates when all combs of current set of points have been generated
 
 begin
 
@@ -77,14 +77,14 @@ begin
     ------------------------------------------------------------------------------
     -- Handles writes to input RAM
     ------------------------------------------------------------------------------
-    variable points_stored  : integer := 0;
-    variable addr_in        : integer := 0;
     constant ena_rising     : std_logic_vector := "01";
     constant one            : std_logic_vector(max_num_points downto 0) := (0 => '1', others => '0');
     constant fully_incremtd : std_logic_vector(max_num_points downto 0) := (others => '1');
     variable high_cnt       : integer := 0;
     variable comb_mask_sum  : integer := 0;
     variable comb_mask_idx  : integer := 0;
+    variable carry_1        : std_logic := '0';
+    variable point_cnt      : integer range 0 to max_num_points := 0;
 
     
     begin
@@ -105,9 +105,8 @@ begin
             when s_inc_comb =>
                 -- increment mask, or reset if fully incremented
                 if sig_comb_mask = fully_incremtd then
-                    -- something reset here
-                    -- tell search all combs done
-                    -- some state transition
+                    set_done <= '1';
+                    current_state <= s_rst;
                 else
                     sig_comb_mask <= std_logic_vector(unsigned(sig_comb_mask) + unsigned(one)); -- increment comb_mask
                     current_state <= s_comb_check;
@@ -135,15 +134,86 @@ begin
                 end if;               
     ------------------------------------Increment mask 0--------------------------                
             when s_mask_0 =>
-                if next_shift_reg = ena_rising then
-                    
+                if next_shift_reg = ena_rising then -- next comb pls
+                    phase_to_out <= '0'; -- output 2-phase
+                    for i in 0 to max_num_points loop -- check status of all indeces
+                        if sig_comb_mask(i) = '1' then -- only check index "assigned" by comb mask
+                            if point_cnt = 0 then -- always increment LSB
+                                if sig_mask_0(i) = 1 then -- carry over
+                                    sig_mask_0(i) <= 0;
+                                    carry_1 := '1';
+                                else
+                                    sig_mask_0(i) <= sig_mask_0(i) + 1; -- else increment
+                                end if;
+                                point_cnt := 1;   
+                            else
+                                if sig_mask_0(i) < 1 then -- if just increment on carry
+                                    if carry_1 = '1' then
+                                        sig_mask_0(i) <= sig_mask_0(i) + 1;
+                                        carry_1 := '0';
+                                    end if;
+                                elsif sig_mask_0(i) = 1 then
+                                    if carry_1 = '1' then
+                                        if i = max_num_points then -- if fully incremented
+                                            if comb_mask_sum mod 3 = 0 then  -- goto 3-phase if mod3=0
+                                                sig_mask_0 <= (others => 0);
+                                                sig_mask_1 <= (others => 0);
+                                                s_data_rdy <= '1';
+                                                current_state <= s_mask_1;
+                                            else 
+                                                sig_mask_0 <= (others => 0); -- else goto increment comb mask
+                                                current_state <= s_inc_comb;
+                                            end if;
+                                            point_cnt := 0;
+                                            carry_1 := '0';
+                                        else -- else reset and keep carry
+                                            sig_mask_0(i) <= 0;
+                                            carry_1 := '1';
+                                        end if;
+                                    end if;
+                                end if;
+                            end if;
+                        end if;
+                    end loop;
                 else
                     current_state <= s_mask_0;
                 end if;
     ------------------------------------Increment mask 1--------------------------                    
             when s_mask_1 =>
                 if next_shift_reg = ena_rising then
-                    
+                    phase_to_out <= '1';
+                    for j in 0 to max_num_points loop -- check status of all indeces
+                        if sig_comb_mask(j) = '1' then -- only check index "assigned" by comb mask
+                            if point_cnt = 0 then -- always increment LSB
+                                if sig_mask_1(j) = 2 then -- carry over
+                                    sig_mask_1(j) <= 0;
+                                    carry_1 := '1';
+                                else
+                                    sig_mask_1(j) <= sig_mask_1(j) + 1; -- else increment
+                                end if;
+                                point_cnt := 1;   
+                            else
+                                if sig_mask_1(j) < 2 then -- if just increment on carry
+                                    if carry_1 = '1' then
+                                        sig_mask_1(j) <= sig_mask_1(j) + 1;
+                                        carry_1 := '0';
+                                    end if;
+                                elsif sig_mask_1(j) = 2 then
+                                    if carry_1 = '1' then
+                                        if j = max_num_points then -- if fully incremented
+                                            sig_mask_1 <= (others => 0); -- goto increment comb mask
+                                            current_state <= s_inc_comb;
+                                            point_cnt := 0;
+                                            carry_1 := '0';
+                                        else -- else reset and keep carry
+                                            sig_mask_1(j) <= 0;
+                                            carry_1 := '1';
+                                        end if;
+                                    end if;
+                                end if;
+                            end if;
+                        end if;
+                    end loop;
                 else
                     current_state <= s_mask_1;
                 end if;
@@ -154,7 +224,14 @@ begin
     -----------------------------------------------------------------------------
         if (i_Rst = '1') then
             current_state   <=  s_rst;          -- Reset state
-            points_stored := 0;
+            comb_mask_sum := 0;
+            comb_mask_idx := 0;
+            sig_comb_mask <= (others => '0');
+            sig_mask_0 <= (others => 0);
+            sig_mask_1 <= (others => 0);
+            phase_to_out <= '0';
+            carry_1 := '0';
+            point_cnt := 0;
             s_data_rdy <= '0';
         end if;
         
@@ -189,52 +266,56 @@ begin
     ------------------------------------------------------------------------------
     
     
+    
+o_set_done <= set_done;
+o_data_rdy <= s_data_rdy;
+    
     -- mask outputs, hardcoded to 8 for now, use generate to match generic 'max_num_points'
-o_s2_phase_0(0) <= '1' when sig_mask_0(0) = 0 and sig_comb_mask(0) = '1' else '0'; -- 2-phase 0 deg output
-o_s2_phase_0(1) <= '1' when sig_mask_0(1) = 0 and sig_comb_mask(1) = '1' else '0';
-o_s2_phase_0(2) <= '1' when sig_mask_0(2) = 0 and sig_comb_mask(2) = '1' else '0';
-o_s2_phase_0(3) <= '1' when sig_mask_0(3) = 0 and sig_comb_mask(3) = '1' else '0';
-o_s2_phase_0(4) <= '1' when sig_mask_0(4) = 0 and sig_comb_mask(4) = '1' else '0';
-o_s2_phase_0(5) <= '1' when sig_mask_0(5) = 0 and sig_comb_mask(5) = '1' else '0';
-o_s2_phase_0(6) <= '1' when sig_mask_0(6) = 0 and sig_comb_mask(6) = '1' else '0';
-o_s2_phase_0(7) <= '1' when sig_mask_0(7) = 0 and sig_comb_mask(7) = '1' else '0';
+o_s2_phase_0(0) <= '1' when sig_mask_0(0) = 0 and sig_comb_mask(0) = '1' and phase_to_out = '0' else '0'; -- 2-phase 0 deg output
+o_s2_phase_0(1) <= '1' when sig_mask_0(1) = 0 and sig_comb_mask(1) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_0(2) <= '1' when sig_mask_0(2) = 0 and sig_comb_mask(2) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_0(3) <= '1' when sig_mask_0(3) = 0 and sig_comb_mask(3) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_0(4) <= '1' when sig_mask_0(4) = 0 and sig_comb_mask(4) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_0(5) <= '1' when sig_mask_0(5) = 0 and sig_comb_mask(5) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_0(6) <= '1' when sig_mask_0(6) = 0 and sig_comb_mask(6) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_0(7) <= '1' when sig_mask_0(7) = 0 and sig_comb_mask(7) = '1' and phase_to_out = '0' else '0';
 
-o_s2_phase_180(0) <= '1' when sig_mask_0(0) = 1 and sig_comb_mask(0) = '1' else '0'; -- 2-phase 180 deg output
-o_s2_phase_180(1) <= '1' when sig_mask_0(1) = 1 and sig_comb_mask(1) = '1' else '0';
-o_s2_phase_180(2) <= '1' when sig_mask_0(2) = 1 and sig_comb_mask(2) = '1' else '0';
-o_s2_phase_180(3) <= '1' when sig_mask_0(3) = 1 and sig_comb_mask(3) = '1' else '0';
-o_s2_phase_180(4) <= '1' when sig_mask_0(4) = 1 and sig_comb_mask(4) = '1' else '0';
-o_s2_phase_180(5) <= '1' when sig_mask_0(5) = 1 and sig_comb_mask(5) = '1' else '0';
-o_s2_phase_180(6) <= '1' when sig_mask_0(6) = 1 and sig_comb_mask(6) = '1' else '0';
-o_s2_phase_180(7) <= '1' when sig_mask_0(7) = 1 and sig_comb_mask(7) = '1' else '0';
+o_s2_phase_180(0) <= '1' when sig_mask_0(0) = 1 and sig_comb_mask(0) = '1' and phase_to_out = '0' else '0'; -- 2-phase 180 deg output
+o_s2_phase_180(1) <= '1' when sig_mask_0(1) = 1 and sig_comb_mask(1) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_180(2) <= '1' when sig_mask_0(2) = 1 and sig_comb_mask(2) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_180(3) <= '1' when sig_mask_0(3) = 1 and sig_comb_mask(3) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_180(4) <= '1' when sig_mask_0(4) = 1 and sig_comb_mask(4) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_180(5) <= '1' when sig_mask_0(5) = 1 and sig_comb_mask(5) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_180(6) <= '1' when sig_mask_0(6) = 1 and sig_comb_mask(6) = '1' and phase_to_out = '0' else '0';
+o_s2_phase_180(7) <= '1' when sig_mask_0(7) = 1 and sig_comb_mask(7) = '1' and phase_to_out = '0' else '0';
 
 
-o_s3_phase_0(0) <= '1' when sig_mask_1(0) = 0 and sig_comb_mask(0) = '1' else '0'; -- 3-phase 0 deg output
-o_s3_phase_0(1) <= '1' when sig_mask_1(1) = 0 and sig_comb_mask(1) = '1' else '0';
-o_s3_phase_0(2) <= '1' when sig_mask_1(2) = 0 and sig_comb_mask(2) = '1' else '0';
-o_s3_phase_0(3) <= '1' when sig_mask_1(3) = 0 and sig_comb_mask(3) = '1' else '0';
-o_s3_phase_0(4) <= '1' when sig_mask_1(4) = 0 and sig_comb_mask(4) = '1' else '0';
-o_s3_phase_0(5) <= '1' when sig_mask_1(5) = 0 and sig_comb_mask(5) = '1' else '0';
-o_s3_phase_0(6) <= '1' when sig_mask_1(6) = 0 and sig_comb_mask(6) = '1' else '0';
-o_s3_phase_0(7) <= '1' when sig_mask_1(7) = 0 and sig_comb_mask(7) = '1' else '0';
+o_s3_phase_0(0) <= '1' when sig_mask_1(0) = 0 and sig_comb_mask(0) = '1' and phase_to_out = '1' else '0'; -- 3-phase 0 deg output
+o_s3_phase_0(1) <= '1' when sig_mask_1(1) = 0 and sig_comb_mask(1) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_0(2) <= '1' when sig_mask_1(2) = 0 and sig_comb_mask(2) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_0(3) <= '1' when sig_mask_1(3) = 0 and sig_comb_mask(3) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_0(4) <= '1' when sig_mask_1(4) = 0 and sig_comb_mask(4) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_0(5) <= '1' when sig_mask_1(5) = 0 and sig_comb_mask(5) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_0(6) <= '1' when sig_mask_1(6) = 0 and sig_comb_mask(6) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_0(7) <= '1' when sig_mask_1(7) = 0 and sig_comb_mask(7) = '1' and phase_to_out = '1' else '0';
 
-o_s3_phase_120(0) <= '1' when sig_mask_1(0) = 1 and sig_comb_mask(0) = '1' else '0'; -- 3-phase 120 deg output
-o_s3_phase_120(1) <= '1' when sig_mask_1(1) = 1 and sig_comb_mask(1) = '1' else '0';
-o_s3_phase_120(2) <= '1' when sig_mask_1(2) = 1 and sig_comb_mask(2) = '1' else '0';
-o_s3_phase_120(3) <= '1' when sig_mask_1(3) = 1 and sig_comb_mask(3) = '1' else '0';
-o_s3_phase_120(4) <= '1' when sig_mask_1(4) = 1 and sig_comb_mask(4) = '1' else '0';
-o_s3_phase_120(5) <= '1' when sig_mask_1(5) = 1 and sig_comb_mask(5) = '1' else '0';
-o_s3_phase_120(6) <= '1' when sig_mask_1(6) = 1 and sig_comb_mask(6) = '1' else '0';
-o_s3_phase_120(7) <= '1' when sig_mask_1(7) = 1 and sig_comb_mask(7) = '1' else '0';
+o_s3_phase_120(0) <= '1' when sig_mask_1(0) = 1 and sig_comb_mask(0) = '1' and phase_to_out = '1' else '0'; -- 3-phase 120 deg output
+o_s3_phase_120(1) <= '1' when sig_mask_1(1) = 1 and sig_comb_mask(1) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_120(2) <= '1' when sig_mask_1(2) = 1 and sig_comb_mask(2) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_120(3) <= '1' when sig_mask_1(3) = 1 and sig_comb_mask(3) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_120(4) <= '1' when sig_mask_1(4) = 1 and sig_comb_mask(4) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_120(5) <= '1' when sig_mask_1(5) = 1 and sig_comb_mask(5) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_120(6) <= '1' when sig_mask_1(6) = 1 and sig_comb_mask(6) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_120(7) <= '1' when sig_mask_1(7) = 1 and sig_comb_mask(7) = '1' and phase_to_out = '1' else '0';
 
-o_s3_phase_240(0) <= '1' when sig_mask_1(0) = 2 and sig_comb_mask(0) = '1' else '0'; -- 3-phase 240 deg output
-o_s3_phase_240(1) <= '1' when sig_mask_1(1) = 2 and sig_comb_mask(1) = '1' else '0';
-o_s3_phase_240(2) <= '1' when sig_mask_1(2) = 2 and sig_comb_mask(2) = '1' else '0';
-o_s3_phase_240(3) <= '1' when sig_mask_1(3) = 2 and sig_comb_mask(3) = '1' else '0';
-o_s3_phase_240(4) <= '1' when sig_mask_1(4) = 2 and sig_comb_mask(4) = '1' else '0';
-o_s3_phase_240(5) <= '1' when sig_mask_1(5) = 2 and sig_comb_mask(5) = '1' else '0';
-o_s3_phase_240(6) <= '1' when sig_mask_1(6) = 2 and sig_comb_mask(6) = '1' else '0';
-o_s3_phase_240(7) <= '1' when sig_mask_1(7) = 2 and sig_comb_mask(7) = '1' else '0';
+o_s3_phase_240(0) <= '1' when sig_mask_1(0) = 2 and sig_comb_mask(0) = '1' and phase_to_out = '1' else '0'; -- 3-phase 240 deg output
+o_s3_phase_240(1) <= '1' when sig_mask_1(1) = 2 and sig_comb_mask(1) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_240(2) <= '1' when sig_mask_1(2) = 2 and sig_comb_mask(2) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_240(3) <= '1' when sig_mask_1(3) = 2 and sig_comb_mask(3) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_240(4) <= '1' when sig_mask_1(4) = 2 and sig_comb_mask(4) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_240(5) <= '1' when sig_mask_1(5) = 2 and sig_comb_mask(5) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_240(6) <= '1' when sig_mask_1(6) = 2 and sig_comb_mask(6) = '1' and phase_to_out = '1' else '0';
+o_s3_phase_240(7) <= '1' when sig_mask_1(7) = 2 and sig_comb_mask(7) = '1' and phase_to_out = '1' else '0';
 
 
     
