@@ -47,7 +47,22 @@ entity BRAM_points is
         bram_addr   :   out STD_LOGIC_VECTOR(31 downto 0);
         bram_dout   :   out STD_LOGIC_VECTOR(31 downto 0);
         bram_en     :   out STD_LOGIC;
-        bram_wr     :   out STD_LOGIC_VECTOR(3 downto 0)
+        bram_wr     :   out STD_LOGIC_VECTOR(3 downto 0);
+
+		-- 	Mag in ports:
+		ch0			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch0, axis0
+		ch1			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch0, axis1
+		ch2			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch0, axis2
+		ch3			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch1, axis0
+		ch4			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch1, axis1
+		ch5			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch1, axis2
+		ch6			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch2, axis0
+		ch7			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch2, axis1
+		ch8			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch2, axis2
+		ch9			:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch3, axis0
+		ch10		:	in	STD_LOGIC_VECTOR(11 downto 0);	-- ch3, axis1
+		ch11		:	in	STD_LOGIC_VECTOR(11 downto 0)	-- ch3, axis2
+		-- addr <= "ch" & "ax"
 
         --  Debug ports:
         
@@ -75,17 +90,75 @@ begin
      variable read_cnt  :   integer range 0 to 31;
      variable wait_cnt  :   integer range 0 to 20;
      variable read_xyz  :   integer range 0 to 3; -- 0=x, 1=y, 2=z
+     variable read_mag  :   integer range 0 to 16;
     ------------------------------------------------------------------------------
     begin
         if rising_edge(i_Clk) then
             if ena_shift_reg = rising then
                 reading := '1';
-                address_var := "010000";
+                address_var := "000000";
                 read_xyz := 0;
                 s_RAM_addr <= "00000";
+                read_mag := 0;
             end if;
             if reading = '1' then
-                if read_xyz < 3 then
+                
+                
+                if read_mag < 16 then
+                    if wait_cnt = 1 then
+                        if read_cnt = 0 then
+                            s_data_out <= "00000000000000000000" & ch0;
+                        elsif read_cnt = 1 then 
+                            s_data_out <= "00000000000000000000" & ch1;
+                        elsif read_cnt = 2 then 
+                            s_data_out <= "00000000000000000000" & ch2;
+                        elsif read_cnt = 4 then 
+                            s_data_out <= "00000000000000000000" & ch3;
+                        elsif read_cnt = 5 then 
+                            s_data_out <= "00000000000000000000" & ch4;
+                        elsif read_cnt = 6 then 
+                            s_data_out <= "00000000000000000000" & ch5;
+                        elsif read_cnt = 8 then 
+                            s_data_out <= "00000000000000000000" & ch6;
+                        elsif read_cnt = 9 then 
+                            s_data_out <= "00000000000000000000" & ch7;
+                        elsif read_cnt = 10 then 
+                            s_data_out <= "00000000000000000000" & ch8;
+                        elsif read_cnt = 12 then 
+                            s_data_out <= "00000000000000000000" & ch9;
+                        elsif read_cnt = 13 then 
+                            s_data_out <= "00000000000000000000" & ch10;
+                        elsif read_cnt = 14 then 
+                            s_data_out <= "00000000000000000000" & ch11;
+                        else 
+                            s_data_out <= (others => '0');
+                        end if;
+                        --read_mag := read_mag + 1;
+                        wait_cnt := wait_cnt + 1;
+                    elsif wait_cnt = 2 then
+                        s_bram_wr <= "1111";
+                        wait_cnt := wait_cnt + 1;
+                    elsif wait_cnt = 3 then
+                        s_bram_wr <= "0000";
+                        wait_cnt := wait_cnt + 1;
+                    elsif wait_cnt = 4 then
+                        wait_cnt := 0;
+                        read_cnt := read_cnt + 1;
+                        read_mag := read_mag + 1;
+                        address_var := std_logic_vector(unsigned(address_var) + unsigned(one));                                                              
+                    else
+                        wait_cnt := wait_cnt + 1;
+                    end if;
+                    if read_cnt = 16 then
+                        read_cnt := 0;
+                        wait_cnt := 0;
+                        address_var := "010000";
+                    end if;
+                end if;                
+                
+                
+                
+                if read_xyz < 3 and read_mag = 16 then
                     if wait_cnt = 1 then
                         if read_cnt < 24 then
                             s_data_out <= data_in(127-32*read_xyz downto 96-32*read_xyz);
@@ -103,12 +176,11 @@ begin
                     elsif wait_cnt = 4 then
                         wait_cnt := 0;
                         read_cnt := read_cnt + 1;
-                        address_var := std_logic_vector(unsigned(address_var) + unsigned(one));
-                                                               
+                        address_var := std_logic_vector(unsigned(address_var) + unsigned(one));                                                              
                         if read_cnt mod 3 = 0 then
                             s_RAM_addr <= std_logic_vector(unsigned(s_RAM_addr) + unsigned(one(4 downto 0)));
                         end if;
-                        
+                        --read_cnt := read_cnt + 1;
                     else
                         wait_cnt := wait_cnt + 1;
                     end if;
@@ -118,8 +190,8 @@ begin
                     end if;
                 else
                     read_xyz := 0;
-                    --s_RAM_addr <= std_logic_vector(unsigned(s_RAM_addr) + unsigned(one(4 downto 0)));
                 end if;
+                
                 
             end if;
             s_address_out <= address_var;
@@ -153,5 +225,3 @@ begin
     bram_wr                 <=  s_bram_wr;
 
 end Behavioral;
-
-
