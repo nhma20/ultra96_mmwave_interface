@@ -109,6 +109,7 @@ begin
                     num_points_out <= points_stored; 
                     points_stored := 0;
                     ram_selector <= '0';
+                    ram_1 <= (others => (others => '0')); -- new, clears ram_1 before assigning
                     current_state <= s_ram_1;
                 else
                     current_state <= s_ram_0;
@@ -123,10 +124,10 @@ begin
                 end if;
                 if new_set_shift_reg = ena_rising then
                     s_data_rdy <= '1';
-                    num_points_out <= points_stored; 
+                    num_points_out <= points_stored;
                     points_stored := 0;
                     ram_selector <= '1';
-                    s_point_addr <= std_logic_vector(unsigned(s_point_addr) + unsigned(one));
+                    ram_0 <= (others => (others => '0')); -- new, clears ram_0 before assigning
                     current_state <= s_ram_0;
                 else
                     current_state <= s_ram_1;
@@ -180,14 +181,17 @@ begin
 
 
    
-      --o_data_out <= s_data_out;
-    --o_test <= s_data_out(127 downto 120);
-    --o_test <= s_data_rdy & "00" & std_logic_vector(to_unsigned(num_points_out, 5));
-    --o_test <= s_data_rdy & "00000" & i_set_and_rdy;
-    --o_test <= s_data_rdy & ram_0(to_integer(unsigned(s_point_addr)))(127 downto 121) when ram_selector = '0' else s_data_rdy & ram_1(to_integer(unsigned(s_point_addr)))(127 downto 121);
-    --o_data_out <= ram_0(to_integer(unsigned(s_point_addr))) when ram_selector = '0' else ram_1(to_integer(unsigned(s_point_addr)));
     o_data_out <= ram_0(to_integer(unsigned(i_point_addr))) when ram_selector = '0' else ram_1(to_integer(unsigned(i_point_addr)));
     o_num_points <= std_logic_vector(to_unsigned(num_points_out, o_num_points'length));
     o_data_rdy <= s_data_rdy;
+    
+--    RAM_val_0 <= ram_0(0) when ram_selector = '0' else ram_1(0);
+--    RAM_val_1 <= ram_0(1) when ram_selector = '0' else ram_1(1);
+--    RAM_val_2 <= ram_0(2) when ram_selector = '0' else ram_1(2);
+--    RAM_val_3 <= ram_0(3) when ram_selector = '0' else ram_1(3);
+--    RAM_val_4 <= ram_0(4) when ram_selector = '0' else ram_1(4);
+--    RAM_val_5 <= ram_0(5) when ram_selector = '0' else ram_1(5);
+--    RAM_val_6 <= ram_0(6) when ram_selector = '0' else ram_1(6);
+--    RAM_val_7 <= ram_0(7) when ram_selector = '0' else ram_1(7);
     
 end Behavioral;
