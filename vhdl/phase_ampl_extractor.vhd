@@ -40,64 +40,64 @@ entity phase_ampl_extractor is
 
     Port ( -- channel 0
            i_ch0_largest    : in STD_LOGIC_VECTOR (11 downto 0);
-           i_ch0_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch0_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch0_smallest   : in STD_LOGIC_VECTOR (11 downto 0);
-           i_ch0_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch0_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 1
            i_ch1_largest    : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch1_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch1_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch1_smallest   : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch1_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch1_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 2
            i_ch2_largest    : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch2_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch2_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch2_smallest   : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch2_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch2_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 3
            i_ch3_largest    : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch3_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch3_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch3_smallest   : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch3_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch3_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 4
            i_ch4_largest    : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch4_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch4_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch4_smallest   : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch4_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch4_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 5
            i_ch5_largest    : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch5_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch5_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch5_smallest   : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch5_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch5_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 6
            i_ch6_largest    : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch6_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch6_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch6_smallest   : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch6_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch6_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 7
            i_ch7_largest    : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch7_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch7_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch7_smallest   : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch7_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch7_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 8
            i_ch8_largest    : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch8_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch8_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch8_smallest   : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch8_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch8_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 9
            i_ch9_largest    : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch9_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch9_largest_n  : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch9_smallest   : in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch9_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch9_smallest_n : in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 10
            i_ch10_largest    :in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch10_largest_n  :in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch10_largest_n  :in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch10_smallest   :in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch10_smallest_n :in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch10_smallest_n :in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            -- channel 11
            i_ch11_largest    :in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch11_largest_n  :in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch11_largest_n  :in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            i_ch11_smallest   :in STD_LOGIC_VECTOR (11 downto 0);                    
-           i_ch11_smallest_n :in STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
+           i_ch11_smallest_n :in STD_LOGIC_VECTOR (log_2_num_samples_min1-1 downto 0);
            
            -- outputs
            o_ch0_ampl        : out std_logic_vector(11 downto 0);
@@ -193,16 +193,16 @@ begin
     o_ch11_ampl <= '0' & ch11_ampl(11 downto 1);
     
     o_ch0_phase  <= (others => '0'); -- reference phase
-    o_ch1_phase  <= std_logic_vector(unsigned(i_ch1_largest_n)  - unsigned(i_ch0_largest_n)) when (unsigned(i_ch1_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch1_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch2_phase  <= std_logic_vector(unsigned(i_ch2_largest_n)  - unsigned(i_ch0_largest_n)) when (unsigned(i_ch2_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch2_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch3_phase  <= std_logic_vector(unsigned(i_ch3_largest_n)  - unsigned(i_ch0_largest_n)) when (unsigned(i_ch3_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch3_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch4_phase  <= std_logic_vector(unsigned(i_ch4_largest_n)  - unsigned(i_ch0_largest_n)) when (unsigned(i_ch4_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch4_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch5_phase  <= std_logic_vector(unsigned(i_ch5_largest_n)  - unsigned(i_ch0_largest_n)) when (unsigned(i_ch5_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch5_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch6_phase  <= std_logic_vector(unsigned(i_ch6_largest_n)  - unsigned(i_ch0_largest_n)) when (unsigned(i_ch6_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch6_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch7_phase  <= std_logic_vector(unsigned(i_ch7_largest_n)  - unsigned(i_ch0_largest_n)) when (unsigned(i_ch7_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch7_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch8_phase  <= std_logic_vector(unsigned(i_ch8_largest_n)  - unsigned(i_ch0_largest_n)) when (unsigned(i_ch8_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch8_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch9_phase  <= std_logic_vector(unsigned(i_ch9_largest_n)  - unsigned(i_ch0_largest_n)) when (unsigned(i_ch9_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch9_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch10_phase <= std_logic_vector(unsigned(i_ch10_largest_n) - unsigned(i_ch0_largest_n)) when (unsigned(i_ch10_largest_n) >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch10_largest_n) + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
-    o_ch11_phase <= std_logic_vector(unsigned(i_ch11_largest_n) - unsigned(i_ch0_largest_n)) when (unsigned(i_ch11_largest_n) >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned(i_ch11_largest_n) + unsigned(to_unsigned(NUM_SAMPLES,o_ch1_phase'length))) - unsigned(i_ch0_largest_n));
+    o_ch1_phase  <= std_logic_vector(unsigned('0' & i_ch1_largest_n)  - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch1_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch1_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch2_phase  <= std_logic_vector(unsigned('0' & i_ch2_largest_n)  - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch2_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch2_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch3_phase  <= std_logic_vector(unsigned('0' & i_ch3_largest_n)  - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch3_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch3_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch4_phase  <= std_logic_vector(unsigned('0' & i_ch4_largest_n)  - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch4_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch4_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch5_phase  <= std_logic_vector(unsigned('0' & i_ch5_largest_n)  - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch5_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch5_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch6_phase  <= std_logic_vector(unsigned('0' & i_ch6_largest_n)  - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch6_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch6_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch7_phase  <= std_logic_vector(unsigned('0' & i_ch7_largest_n)  - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch7_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch7_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch8_phase  <= std_logic_vector(unsigned('0' & i_ch8_largest_n)  - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch8_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch8_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch9_phase  <= std_logic_vector(unsigned('0' & i_ch9_largest_n)  - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch9_largest_n)  >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch9_largest_n)  + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch10_phase <= std_logic_vector(unsigned('0' & i_ch10_largest_n) - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch10_largest_n) >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch10_largest_n) + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
+    o_ch11_phase <= std_logic_vector(unsigned('0' & i_ch11_largest_n) - unsigned('0' & i_ch0_largest_n)) when (unsigned(i_ch11_largest_n) >= unsigned(i_ch0_largest_n)) else std_logic_vector((unsigned('0' & i_ch11_largest_n) + unsigned(to_unsigned(NUM_SAMPLES,log_2_num_samples_min1))) - unsigned('0' & i_ch0_largest_n));
     
 end Behavioral;
