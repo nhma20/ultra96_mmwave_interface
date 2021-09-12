@@ -42,6 +42,7 @@ entity extrema_finder_ctrl is
            i_Rst        : in std_logic;
            o_sample_n   : out STD_LOGIC_VECTOR (log_2_num_samples_min1 downto 0);
            o_next_sample: out STD_LOGIC;
+           o_sum_rdy    : out STD_LOGIC;
            o_clr        : out STD_LOGIC
            );
 end extrema_finder_ctrl;
@@ -131,7 +132,7 @@ begin
 o_sample_n <= std_logic_vector(to_unsigned(sample_cnt, o_sample_n'length));
 o_clr <= clr;
 o_next_sample <= next_sample;
-
+o_sum_rdy <= shift_RAM;
 
 end Behavioral;
 
