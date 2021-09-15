@@ -1,7 +1,7 @@
 Running:
 ros2 launch usb_cam demo_launch.py
 
-Modify /ros2_ws/src/usb_cam/config/params.yaml to change framerate, resolution etc.
+Modify /ros2_ws/src/usb_cam/config/params.yaml to change camera ID (video0 etc) framerate, resolution etc.
 
 
 
