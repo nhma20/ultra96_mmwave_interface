@@ -2,3 +2,6 @@ Publishes data from the mmWave radar device as it is transfered from PL to PS vi
 
 Running:
 ros2 run mmwave_pl_publisher mmwave_publisher_node --ros-args -p port:='/dev/ttyUSB1' -p baud:=115200 -p n_points:=8
+
+Launching:
+ros2 launch mmwave_pl_publisher mmwave_pl_pub.launch.py (check launch file for parameters)
