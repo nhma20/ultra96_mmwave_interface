@@ -23,7 +23,7 @@ class mmwPubNode(Node):
 		self.baud = self.get_parameter('baud').value
 		
 		self.get_logger().info("mmWave_publisher_node started")
-		self.publisher_ = self.create_publisher(PointCloud2, 'mmwave_pub/pcl', 1)
+		self.publisher_ = self.create_publisher(PointCloud2, '/iwr6843_pcl', 1)
 		self.serial_port, self.points, self.n_points = self.open_serial_port()
 		timer_period = 0.01
 		self.timer = self.create_timer(timer_period, self.read_BRAM_points)
@@ -41,18 +41,19 @@ class mmwPubNode(Node):
 		line = self.serial_port.readline()[:-1]
 		print("next")
 		#vals = [float(v) for v in line.split()] # maybe wrong cast?
-		vals = [0, 0,0,0,0,0,0,0,0,0,0,0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
-		if (len(vals) != (12+self.n_points*3)):
-		#	print(len(vals))
+		vals = [v.decode('ISO-8859-1') for v in line.split()]
+		#vals = [0, 0,0,0,0,0,0,0,0,0,0,0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+		if (len(vals) != (0+self.n_points*3)):
+			print(len(vals))
 			return -1
-		for i in range(12,12+self.n_points*3):
-			self.points[math.floor((i-12)/3),((i-12)%3)] = vals[i] # 0 .. 11 = mag; 12=x, 13=y, 14=z, 15=x, ... 46=z
+		for i in range(0,0+self.n_points*3):
+			self.points[math.floor((i-0)/3),((i-0)%3)] = float(vals[i]) # 0 .. 11 = mag; 12=x, 13=y, 14=z, 15=x, ... 46=z
 		print("middle")
 		cloud_arr = np.asarray(self.points).astype(np.float32) # on form [[x,y,z],[x,y,z],[x,y,z]..]
 		pcl_msg = PointCloud2()
 		pcl_msg.header = std_msgs.msg.Header()
 		pcl_msg.header.stamp = self.get_clock().now().to_msg()
-		pcl_msg.header.frame_id = 'mmwave_pl_frame'
+		pcl_msg.header.frame_id = 'mmwave_frame'
 		pcl_msg.height = 1 # because unordered cloud
 		pcl_msg.width = cloud_arr.shape[0] # number of points in cloud
 		# define interpretation of pointcloud message (offset is in bytes, float32 is 4 bytes)
