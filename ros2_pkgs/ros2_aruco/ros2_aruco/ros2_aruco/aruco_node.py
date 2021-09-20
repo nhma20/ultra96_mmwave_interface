@@ -2,9 +2,9 @@
 This node locates Aruco AR markers in images and publishes their ids and poses.
 
 Subscriptions:
-   /camera/image_raw (sensor_msgs.msg.Image)
-   /camera/camera_info (sensor_msgs.msg.CameraInfo)
-   /camera/camera_info (sensor_msgs.msg.CameraInfo)
+   /image_raw (sensor_msgs.msg.Image)
+   /camera_info (sensor_msgs.msg.CameraInfo)
+   /camera_info (sensor_msgs.msg.CameraInfo)
 
 Published Topics:
     /aruco_poses (geometry_msgs.msg.PoseArray)
@@ -18,9 +18,9 @@ Parameters:
     marker_size - size of the markers in meters (default .0625)
     aruco_dictionary_id - dictionary that was used to generate markers
                           (default DICT_5X5_250)
-    image_topic - image topic to subscribe to (default /camera/image_raw)
+    image_topic - image topic to subscribe to (default /image_raw)
     camera_info_topic - camera info topic to subscribe to
-                         (default /camera/camera_info)
+                         (default /camera_info)
 
 Author: Nathan Sprague
 Version: 10/26/2020
