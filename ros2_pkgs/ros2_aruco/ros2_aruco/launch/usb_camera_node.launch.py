@@ -26,7 +26,14 @@ def generate_launch_description():
             node_executable="static_transform_publisher",
             arguments=["0","0","0","0","0","0","world","camera"],
             output="screen")
+        Node(
+            package="tf2_ros",
+            node_executable="static_transform_publisher",
+            arguments=["0","0","0","0","0","0","camera","mmwave_frame"],
+            output="screen")
 
     ])
+
+    
 
     
