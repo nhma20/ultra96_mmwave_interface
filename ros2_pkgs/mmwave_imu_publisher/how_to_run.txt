@@ -1,0 +1,2 @@
+ros2 run mmw_cam_imu_pub mmwave_publisher_node --ros-args -p port:='/dev/ttyUSB1' -p baud:=115200 -p n_points:=8
+
