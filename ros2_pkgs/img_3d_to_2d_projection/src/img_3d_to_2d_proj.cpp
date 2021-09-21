@@ -70,9 +70,9 @@ void DepthToImageProjection::OnDepthMsg(const sensor_msgs::msg::PointCloud2::Sha
 	std::vector<float> pcl_z;
 	for (int i = 0; i < pcl_size; i++)
 	{
-		pcl_x.push_back(*(reinterpret_cast<float*>(ptr + 0)));
-		pcl_y.push_back(*(reinterpret_cast<float*>(ptr + 4)));
-		pcl_z.push_back(*(reinterpret_cast<float*>(ptr + 8)));
+		pcl_z.push_back(*(reinterpret_cast<float*>(ptr + 0)));
+		pcl_x.push_back(*(reinterpret_cast<float*>(ptr + 4)));
+		pcl_y.push_back(*(reinterpret_cast<float*>(ptr + 8)));
 		ptr += POINT_STEP;
 	}
 	float closest_dist = std::numeric_limits<float>::max(); 
@@ -111,7 +111,7 @@ void DepthToImageProjection::OnDepthMsg(const sensor_msgs::msg::PointCloud2::Sha
 
 // calculate pixel coordinates for 3d->2d projection
 void DepthToImageProjection::OnCameraMsg(const sensor_msgs::msg::Image::SharedPtr _msg){
-	float img_hfov = 1.3962634016;
+	float img_hfov = 1.48352986;//1.3962634016;
 	float h_focal_length = (_msg->width * 0.5) / tan(img_hfov * 0.5 ); // in pixels
 	// find horisontal and vertical pixel where nearest object would be
 	std::vector<float> x_px_vec;
@@ -157,13 +157,14 @@ void DepthToImageProjection::OnCameraMsg(const sensor_msgs::msg::Image::SharedPt
 	}
 	
 
-	int square_radius = 15; // "radius" of drawn square
+	int square_radius = 30; // "radius" of drawn square
 	int square_diameter = square_radius*2;
 	int num_channels = 3; // rgb
 	int draw_idx = 0;
 	int num_img_vals = _msg->width * _msg->height * num_channels;
 	// draw squares
 	for (int i = 0; size_t(i) < objects.size(); i++){
+		square_diameter = 5 + int(float(square_diameter) / (float(objects.at(i)) / 0.05));
 		for (int y = 0; y < square_diameter; y++){
 			for (int x = 0; x < square_diameter; x++){
 				for (int channel = 0; channel < num_channels; channel++){
@@ -181,7 +182,7 @@ void DepthToImageProjection::OnCameraMsg(const sensor_msgs::msg::Image::SharedPt
 						{
 							draw_idx = (_msg->width * ((int(y_px_vec.at(i))-((square_radius)-1))+y) + 
 								((int(x_px_vec.at(i))-((square_radius)-1))+x)) * num_channels + channel;
-							if( draw_idx < num_img_vals  && draw_idx > -1){
+							if( draw_idx < num_img_vals  && draw_idx > -1 && channel == 0){
 								_msg->data.at(draw_idx) = 255; // draw white pixel
 							}
 						}
