@@ -11,7 +11,19 @@ Board files installed by creating new project, and pressing refresh (lower left 
 ## Create and flash hard coded config (HCC) binary to EVM board
 HCC configures the EVM board automatically upon power-up without needing to send CLI commands from a host. Data is automatically output over UART.
 
-Open CCS, import AOP demo project: Project -> Import CCS Projects... -> Browse -> <MMWAVE_SDK_INSTALL>/mmwave_industrial_toolbox_4_8_0/labs/out_of_box_demo/68xx_aop_mmwave_sdk_hwa/src/
+1. Open CCS, import AOP demo project: Project -> Import CCS Projects... -> Browse -> <MMWAVE_SDK_INSTALL>/mmwave_industrial_toolbox_4_8_0/labs/out_of_box_demo/68xx_aop_mmwave_sdk_hwa/src/
+2. Re-implement the file mmw_cli.c as follows:
+    - MmwDemo_CLIInit should just create a task with input taskPriority. Lets say the task is called "MmwDemo_sensorConfig_task".
+    - All other functions are not needed
+    - Implement the MmwDemo_sensorConfig_task as follows:
+    - Fill gMmwMssMCB.cfg.openCfg
+    - Fill gMmwMssMCB.cfg.ctrlCfg
+    - Add profiles and chirps using MMWave_addProfile and MMWave_addChirp functions
+    - Call MmwDemo_CfgUpdate for every offset in Offsets for storing CLI configuration (MMWDEMO_xxx_OFFSET in mmw_mss.h)
+    - Fill gMmwMssMCB.objDetCommonCfg.preStartCommonCfg
+    - Call MmwDemo_openSensor
+    - Call MmwDemo_configSensor
+    - Call MmwDemo_startSensor (One can use helper function MmwDemo_isAllCfgInPendingState to know if all dynamic config was provided)
 
 Old version, might not be compatible with AOP antenna:
 1. Follow https://dev.ti.com/tirex/explore/node?node=AK2Pfzv8YhOKYSVHLm9wQw__VLyFKFf__LATEST which is also compatible with AOP version. 
