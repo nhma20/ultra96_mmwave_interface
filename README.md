@@ -10,6 +10,10 @@ Board files installed by creating new project, and pressing refresh (lower left 
 
 ## Create and flash hard coded config (HCC) binary to EVM board
 HCC configures the EVM board automatically upon power-up without needing to send CLI commands from a host. Data is automatically output over UART.
+
+Open CCS, import AOP demo project: Project -> Import CCS Projects... -> Browse -> <MMWAVE_SDK_INSTALL>/mmwave_industrial_toolbox_4_8_0/labs/out_of_box_demo/68xx_aop_mmwave_sdk_hwa/src/
+
+Old version, might not be compatible with AOP antenna:
 1. Follow https://dev.ti.com/tirex/explore/node?node=AK2Pfzv8YhOKYSVHLm9wQw__VLyFKFf__LATEST which is also compatible with AOP version. 
 Download the Industrial Toolbox and find the mentioned binary. 
 2. Rebuild binaries:
