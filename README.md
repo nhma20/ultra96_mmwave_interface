@@ -24,6 +24,7 @@ HCC configures the EVM board automatically upon power-up without needing to send
     - Call MmwDemo_openSensor
     - Call MmwDemo_configSensor
     - Call MmwDemo_startSensor (One can use helper function MmwDemo_isAllCfgInPendingState to know if all dynamic config was provided)
+ 3. Maybe swap cli.c with cli.c from gesture recognition lab
 
 Old version, might not be compatible with AOP antenna:
 1. Follow https://dev.ti.com/tirex/explore/node?node=AK2Pfzv8YhOKYSVHLm9wQw__VLyFKFf__LATEST which is also compatible with AOP version. 
