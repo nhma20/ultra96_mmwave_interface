@@ -18,10 +18,12 @@ Example of hard-coded sensor config for 14xx using mmWave SDK 1.2 mmw demo
 - Place new cli.c file in directory
 - Re-build cli library using gmake as described in mmWave SDK user guide
     - Linux:   
+    
         a Make sure to update (mmwave_sdk_03_05_00_04/packages/scripts/unix/) setenv.sh with correct device (i.e. iwr68xx) before executing it
         
         b. Make sure to run 'gmake clean' and then 'gmake all' in the mmwave_sdk_03_05_00_04\packages\ti\utils\cli directory
     - Windows:
+    
         a. Make sure to update (mmwave_sdk_03_05_00_04\packages\scripts\windows\) setenv.bat with correct device (i.e. iwr68xx) before executing it
         
         b. Make sure to run 'make clean' and then 'make all' in the mmwave_sdk_03_05_00_04\packages\ti\utils\cli directory (installing chocolatey and then make allows this on Windows).
