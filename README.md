@@ -15,7 +15,7 @@ HCC configures the EVM board automatically upon power-up without needing to send
 Example of hard-coded sensor config for 14xx using mmWave SDK 1.2 mmw demo
 2. Update mmWave SDK 3.5 68xx_aop demo to use example hard-coded config:
 - Rename/backup existing cli.c source file in mmwave_sdk_03_05_00_04\packages\ti\utils\cli\src directory
-- Place new cli.c file in directory
+- Edit new cli.c file with configuration of choice (example in this repository) and place in directory
 - Re-build cli library using gmake as described in mmWave SDK user guide
     - Linux:   
     
