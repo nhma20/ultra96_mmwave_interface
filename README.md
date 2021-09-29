@@ -12,19 +12,26 @@ Board files installed by creating new project, and pressing refresh (lower left 
 HCC configures the EVM board automatically upon power-up without needing to send CLI commands from a host. Data is automatically output over UART.
 
 1. Open CCS, import AOP demo project: Project -> Import CCS Projects... -> Browse -> <MMWAVE_SDK_INSTALL>/mmwave_industrial_toolbox_4_8_0/labs/out_of_box_demo/68xx_aop_mmwave_sdk_hwa/src/
-2. Re-implement the file mmw_cli.c as follows:
-    - MmwDemo_CLIInit should just create a task with input taskPriority. Lets say the task is called "MmwDemo_sensorConfig_task".
-    - All other functions are not needed
-    - Implement the MmwDemo_sensorConfig_task as follows:
-    - Fill gMmwMssMCB.cfg.openCfg
-    - Fill gMmwMssMCB.cfg.ctrlCfg
-    - Add profiles and chirps using MMWave_addProfile and MMWave_addChirp functions
-    - Call MmwDemo_CfgUpdate for every offset in Offsets for storing CLI configuration (MMWDEMO_xxx_OFFSET in mmw_mss.h)
-    - Fill gMmwMssMCB.objDetCommonCfg.preStartCommonCfg
-    - Call MmwDemo_openSensor
-    - Call MmwDemo_configSensor
-    - Call MmwDemo_startSensor (One can use helper function MmwDemo_isAllCfgInPendingState to know if all dynamic config was provided)
- 3. Maybe swap cli.c with cli.c from gesture recognition lab
+Example of hard-coded sensor config for 14xx using mmWave SDK 1.2 mmw demo
+2. Update mmWave SDK 3.5 68xx_aop demo to use example hard-coded config:
+- Rename/backup existing cli.c source file in mmwave_sdk_03_05_00_04\packages\ti\utils\cli\src directory
+- Place new cli.c file in directory
+- Re-build cli library using gmake as described in mmWave SDK user guide
+    - Linux:   
+        a. Make sure to update (mmwave_sdk_03_05_00_04/packages/scripts/unix/) setenv.sh with correct device (i.e. iwr68xx) before executing it
+        b. Make sure to run 'gmake clean' and then 'gmake all' in the mmwave_sdk_03_05_00_04\packages\ti\utils\cli directory
+    - Windows:
+        a. Make sure to update (mmwave_sdk_03_05_00_04\packages\scripts\windows\) setenv.bat with correct device (i.e. iwr68xx) before executing it
+        b. Make sure to run 'make clean' and then 'make all' in the mmwave_sdk_03_05_00_04\packages\ti\utils\cli directory (installing chocolatey and then make allows this on Windows).
+- Re-build CCS project by right-clicking on project in CCS and performing "Re-build"
+- NOTE: If replacing/updating the example sensor config given in the cli.c file, make sure to use a config that was generated for the desired device and mmWave SDK version.
+3. Flash device with new .bin file (https://training.ti.com/hardware-setup-iwr6843aop)
+- new .bin file found in <CCS_workspace>/mmwave_sdk_68xx_aop_hwa/Debug
+- Configure device to flashing mode (small switch next to heat-sink "On")
+- Use Uniflash to flash new .bin file
+- Disable flashing mode on device and power-cycle
+4. EVM board should now be outputting data on the UART ports (USB and 60-pin (MSS_LOGGER pin)). 
+
 
 Old version, might not be compatible with AOP antenna:
 1. Follow https://dev.ti.com/tirex/explore/node?node=AK2Pfzv8YhOKYSVHLm9wQw__VLyFKFf__LATEST which is also compatible with AOP version. 
