@@ -44,12 +44,12 @@ class mmwImuPubNode(Node):
 		
 		if (len(vals) != (0+self.n_points*3+self.num_imu_vals)):
 			print(len(vals))
+			print("Mismatch between expected and received data points")
 			return -1		
 			
 		for i in range(0,0+self.n_points*3):
 			self.points[math.floor((i-0)/3),((i-0)%3)] = float(vals[i]) # 0 .. 11 = mag; 12=x, 13=y, 14=z, 15=x, ... 46=z
 			
-		print(self.points)
 			
 		cloud_arr = np.asarray(self.points).astype(np.float32) # on form [[x,y,z],[x,y,z],[x,y,z]..]
 		pcl_msg = PointCloud2()
@@ -70,6 +70,7 @@ class mmwImuPubNode(Node):
 		self.publisher_.publish(pcl_msg)
 		xyz_mutex = False
 		self.get_logger().info('Publishing %s points' % cloud_arr.shape[0] )
+		print(self.points)
 		
 		#https://github.com/ros2/common_interfaces/blob/master/sensor_msgs/msg/Imu.msg
 		imu_msg = Imu()
@@ -84,6 +85,14 @@ class mmwImuPubNode(Node):
 		imu_msg.linear_acceleration.y = float(vals[28])
 		imu_msg.linear_acceleration.z = float(vals[29])
 		self.imu_publisher_.publish(imu_msg)
+		self.get_logger().info('Publishing IMU data')
+		print("ang_vel_x: ", float(vals[24]))
+		print("ang_vel_y: ", float(vals[25]))
+		print("ang_vel_z: ", float(vals[26]))
+		print("lin_acc_x: ", float(vals[27]))
+		print("lin_acc_y: ", float(vals[28]))
+		print("lin_acc_z: ", float(vals[29]))
+		
 		
 		return 1
 			
